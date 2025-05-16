@@ -5,6 +5,7 @@ import { Calendar, GraduationCap, Briefcase, Award, MapPin } from 'lucide-react'
 import PageTransition from '../components/pageTransition';
 import photo from '../assets/photo.png';
 import cvFile from '../assets/NooraWaelCV.pdf';
+import { Link } from 'react-router-dom';
 
 
 const About = () => {
@@ -113,15 +114,16 @@ const About = () => {
                   >
                     Download CV
                   </motion.button>
+                  <Link to="/projects">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     className="px-6 py-3 border-2 border-blue-500 text-blue-500
                       rounded-lg hover:bg-blue-500/10 transition-colors"
-                    onClick={() => window.open('/projects')}
                   >
                     My Work
                   </motion.button>
+                  </Link>
                 </div>
               </div>
 

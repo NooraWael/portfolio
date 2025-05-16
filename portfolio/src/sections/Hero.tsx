@@ -20,6 +20,7 @@ import {
   Database,
   Globe
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 
 
@@ -127,25 +128,27 @@ const Hero = () => {
             </div>
 
             <div className="flex space-x-4 pt-8">
+            <Link to="/projects">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="px-8 py-4 bg-blue-600 text-white rounded-xl font-bold 
                   hover:bg-blue-700 transition-colors duration-300
                   shadow-lg shadow-blue-500/30"
-                onClick={() => window.open('/projects',)}
               >
                 View Projects
               </motion.button>
+              </Link>
+              <Link to="/contact">
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="px-8 py-4 border-2 border-blue-500 text-blue-500 rounded-xl font-bold 
                   hover:bg-blue-500/10 transition-colors duration-300"
-                onClick={() => window.open('/contact')}
               >
                 Contact Me
               </motion.button>
+              </Link>
             </div>
           </motion.div>
 
