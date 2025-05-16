@@ -4,6 +4,10 @@ import gsap from 'gsap';
 import { Calendar, GraduationCap, Briefcase, Award, MapPin } from 'lucide-react';
 import PageTransition from '../components/pageTransition';
 import photo from '../assets/photo.png';
+import cvFile from '../assets/NooraWaelCV.pdf';
+import { useNavigate } from 'react-router-dom';
+const navigate = useNavigate();
+
 
 const About = () => {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -102,6 +106,12 @@ const About = () => {
                     whileTap={{ scale: 0.95 }}
                     className="px-6 py-3 bg-blue-600 text-white rounded-lg
                       hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/30"
+                      onClick={() => {
+                        const link = document.createElement('a');
+                        link.href = cvFile;
+                        link.download = 'Noora_Qasim_CV.pdf';
+                        link.click();
+                      }}
                   >
                     Download CV
                   </motion.button>
@@ -110,7 +120,7 @@ const About = () => {
                     whileTap={{ scale: 0.95 }}
                     className="px-6 py-3 border-2 border-blue-500 text-blue-500
                       rounded-lg hover:bg-blue-500/10 transition-colors"
-                    onClick={() => window.open('/projects', '_self')}
+                      onClick={() => navigate('/projects')}
                   >
                     My Work
                   </motion.button>
