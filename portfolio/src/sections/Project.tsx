@@ -112,7 +112,7 @@ const Projects = () => {
       tech: ["Wordpress", "Elementor", "PHP", "JS"],
       image: raincode,
       featured: false,
-      github: "https://raincode.tech",
+      live: "https://raincode.tech",
     },
 
     // Add more projects as needed
