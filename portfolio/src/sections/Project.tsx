@@ -1,16 +1,25 @@
-import { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Github, ExternalLink, Gamepad, Globe, Smartphone, Code, PenTool } from 'lucide-react';
-import PageTransition from '../components/pageTransition';
-import cryptic from '../assets/Logo-2.png';
-import unamed from '../assets/unnamed.png';
-import wget from '../assets/wget-cover.png'
+import { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  Github,
+  ExternalLink,
+  Gamepad,
+  Globe,
+  Smartphone,
+  Code,
+  PenTool,
+} from "lucide-react";
+import PageTransition from "../components/pageTransition";
+import cryptic from "../assets/Logo-2.png";
+import unamed from "../assets/unnamed.png";
+import wget from "../assets/wget-cover.png";
+import raincode from "../assets/Raincode.png";
 
 interface Project {
   id: number;
   title: string;
   description: string;
-  type: 'web' | 'game' | 'mobile' | 'other' | 'tool';
+  type: "web" | "game" | "mobile" | "other" | "tool";
   tech: string[];
   image: string;
   github?: string;
@@ -19,7 +28,7 @@ interface Project {
 }
 
 const Projects = () => {
-  const [selectedFilter, setSelectedFilter] = useState<string>('all');
+  const [selectedFilter, setSelectedFilter] = useState<string>("all");
   const [displayedProjects, setDisplayedProjects] = useState<Project[]>([]);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -28,80 +37,110 @@ const Projects = () => {
     {
       id: 1,
       title: "Foremaret",
-      description: "Top Swedish Golf Second Hand Marketplace. A platform for buying and selling used golf equipment.",
+      description:
+        "Top Swedish Golf Second Hand Marketplace. A platform for buying and selling used golf equipment.",
       type: "mobile",
-      tech: ["React Native","Expo", "Node.js", "MongoDB", "Stripe", "Rocker", "BankID", "Firebase", "Rocker", "PostNord", "AWS Services"],
-      image: "https://media.licdn.com/dms/image/v2/D4D0BAQEJKehkb4XXgg/company-logo_200_200/company-logo_200_200/0/1738939089627/foremarket_logo?e=2147483647&v=beta&t=bsJ7eCQtFIqLDJ0o5IrSya6R56w_tCHgVFljkUC021Q",
+      tech: [
+        "React Native",
+        "Expo",
+        "Node.js",
+        "MongoDB",
+        "Stripe",
+        "Rocker",
+        "BankID",
+        "Firebase",
+        "Rocker",
+        "PostNord",
+        "AWS Services",
+      ],
+      image:
+        "https://media.licdn.com/dms/image/v2/D4D0BAQEJKehkb4XXgg/company-logo_200_200/company-logo_200_200/0/1738939089627/foremarket_logo?e=2147483647&v=beta&t=bsJ7eCQtFIqLDJ0o5IrSya6R56w_tCHgVFljkUC021Q",
       live: "https://foremarket.se/",
-      featured: true
+      featured: true,
     },
     {
       id: 2,
       title: "Cryptic Portal",
-      description: "An immersive 3D escape game built with Unity, featuring dynamic horror house and AI-driven NPCs. Contains a trained LLM to be your escape room guide",
+      description:
+        "An immersive 3D escape game built with Unity, featuring dynamic horror house and AI-driven NPCs. Contains a trained LLM to be your escape room guide",
       type: "game",
-      tech: ["Unity", "C#", "Blender","Llama AI"],
+      tech: ["Unity", "C#", "Blender", "Llama AI"],
       image: cryptic,
       live: "https://dj96u9m908mjo.cloudfront.net/Cryptic.zip",
-      featured: true
+      featured: true,
     },
     {
       id: 3,
       title: "Bevy Guide Website",
-      description: "Created and deployed a step-by-step guide along with strong documentation on how to use bevy, a game engine in Rust",
+      description:
+        "Created and deployed a step-by-step guide along with strong documentation on how to use bevy, a game engine in Rust",
       type: "web",
-      tech: ["Nextjs", "Vercel", "Typescript", "Bevy","Rust"],
+      tech: ["Nextjs", "Vercel", "Typescript", "Bevy", "Rust"],
       image: "https://bevyengine.org/assets/bevy_logo_dark.svg",
       live: "https://bevy-guide.vercel.app",
       featured: true,
-      github: "https://github.com/NooraWael/bevy-guide"
+      github: "https://github.com/NooraWael/bevy-guide",
     },
     {
-      id: 3,
+      id: 4,
       title: "Maze wars",
-      description: "Maze wars is a project that involved recreating the orginal game maze wars in a modern architecture, server and client using Rust",
+      description:
+        "Maze wars is a project that involved recreating the orginal game maze wars in a modern architecture, server and client using Rust",
       type: "game",
       tech: ["Rust", "Sdl2"],
       image: unamed,
       featured: false,
-      github: "https://github.com/NooraWael/maze-wars"
+      github: "https://github.com/NooraWael/maze-wars",
     },
     {
-      id: 3,
+      id: 5,
       title: "W-get replica",
-      description: "W-get is a replica of the wget command in linux, it is a tool that allows you to download files from the internet, Along with that I have equipped it with a GUI interface to download files in a user friendly environemnt",
+      description:
+        "W-get is a replica of the wget command in linux, it is a tool that allows you to download files from the internet, Along with that I have equipped it with a GUI interface to download files in a user friendly environemnt",
       type: "tool",
       tech: ["Go", "Gin"],
       image: wget,
       featured: false,
-      github: "https://github.com/NooraWael/get-with-a-w"
+      github: "https://github.com/NooraWael/get-with-a-w",
     },
-    
+    {
+      id: 6,
+      title: "Raincode Website",
+      description:
+        "Raincode.tech and Raincode.bh are websites for the company Raincode. Which is based in Bahrain and Sweden and provide software solutions",
+      type: "web",
+      tech: ["Wordpress", "Elementor", "PHP", "JS"],
+      image: raincode,
+      featured: false,
+      github: "https://raincode.tech",
+    },
+
     // Add more projects as needed
   ];
 
   const filterOptions = [
-    { value: 'all', label: 'All Projects', icon: Code },
-    { value: 'web', label: 'Web Apps', icon: Globe },
-    { value: 'game', label: 'Games', icon: Gamepad },
-    { value: 'mobile', label: 'Mobile Apps', icon: Smartphone },
-    { value: 'tool', label: 'Tools', icon: PenTool },
+    { value: "all", label: "All Projects", icon: Code },
+    { value: "web", label: "Web Apps", icon: Globe },
+    { value: "game", label: "Games", icon: Gamepad },
+    { value: "mobile", label: "Mobile Apps", icon: Smartphone },
+    { value: "tool", label: "Tools", icon: PenTool },
   ];
 
   useEffect(() => {
-    const filtered = selectedFilter === 'all'
-      ? projects
-      : projects.filter(project => project.type === selectedFilter);
+    const filtered =
+      selectedFilter === "all"
+        ? projects
+        : projects.filter((project) => project.type === selectedFilter);
     setDisplayedProjects(filtered);
   }, [selectedFilter]);
 
   const getProjectIcon = (type: string) => {
     switch (type) {
-      case 'web':
+      case "web":
         return <Globe className="w-5 h-5" />;
-      case 'game':
+      case "game":
         return <Gamepad className="w-5 h-5" />;
-      case 'mobile':
+      case "mobile":
         return <Smartphone className="w-5 h-5" />;
       default:
         return <Code className="w-5 h-5" />;
@@ -112,18 +151,24 @@ const Projects = () => {
     <PageTransition>
       <div className="flex min-h-screen w-full fixed inset-0 overflow-hidden">
         <div className="flex flex-col w-full bg-black overflow-y-auto">
-          <div ref={contentRef} className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20">
+          <div
+            ref={contentRef}
+            className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20"
+          >
             {/* Header Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               className="text-center space-y-4 mb-16"
             >
-              <h1 className="text-5xl font-bold text-white mb-4">My Projects</h1>
+              <h1 className="text-5xl font-bold text-white mb-4">
+                My Projects
+              </h1>
               <div className="w-20 h-1 bg-blue-500 mx-auto"></div>
               <p className="text-gray-400 max-w-2xl mx-auto text-lg">
-                Explore my portfolio of web applications, games, and mobile apps. 
-                Each project represents a unique challenge and innovative solution.
+                Explore my portfolio of web applications, games, and mobile
+                apps. Each project represents a unique challenge and innovative
+                solution.
               </p>
             </motion.div>
 
@@ -140,8 +185,8 @@ const Projects = () => {
                     className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium 
                       transition-all duration-300 ${
                         selectedFilter === filter.value
-                          ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30'
-                          : 'bg-gray-800 text-gray-300 hover:bg-gray-700'
+                          ? "bg-blue-600 text-white shadow-lg shadow-blue-500/30"
+                          : "bg-gray-800 text-gray-300 hover:bg-gray-700"
                       }`}
                   >
                     <Icon className="w-5 h-5" />
@@ -184,7 +229,9 @@ const Projects = () => {
                     {/* Project Info */}
                     <div className="p-6 space-y-4">
                       <div className="flex items-center justify-between">
-                        <h3 className="text-xl font-bold text-white">{project.title}</h3>
+                        <h3 className="text-xl font-bold text-white">
+                          {project.title}
+                        </h3>
                         <div className="flex items-center gap-2 text-gray-400">
                           {getProjectIcon(project.type)}
                         </div>
@@ -234,8 +281,10 @@ const Projects = () => {
 
                       {/* Featured Badge */}
                       {project.featured && (
-                        <div className="absolute top-4 right-4 px-3 py-1 bg-blue-500 
-                          text-white text-sm font-medium rounded-full shadow-lg">
+                        <div
+                          className="absolute top-4 right-4 px-3 py-1 bg-blue-500 
+                          text-white text-sm font-medium rounded-full shadow-lg"
+                        >
                           Featured
                         </div>
                       )}
