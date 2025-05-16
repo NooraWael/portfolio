@@ -9,7 +9,6 @@ import {
   Send,
   Github,
   Linkedin,
-  Twitter,
   CheckCircle,
   Loader,
 } from "lucide-react";

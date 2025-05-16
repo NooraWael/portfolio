@@ -3,7 +3,7 @@ import { motion, useInView } from 'framer-motion';
 import PageTransition from '../components/pageTransition';
 import { 
   Code2, Database, Palette, Terminal, Brain, Gamepad, Layout, Server,
-  Globe, Smartphone, Github, ExternalLink, Blocks, Cloud
+  Globe, Smartphone, Github, ExternalLink
 } from 'lucide-react';
 
 interface Skill {
@@ -256,7 +256,7 @@ const Skills = () => {
               </div>
 
               <div className="space-y-8">
-                {techStacks.map((stack, stackIndex) => (
+                {techStacks.map((stack, _) => (
                   <motion.div
                     key={stack.name}
                     variants={skillVariants}
