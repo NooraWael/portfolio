@@ -47,25 +47,26 @@ const CubePiece = ({
     const progress = hoverProgress.current;
 
     if (progress > 0.01) {
-      // Brighten color
-      const brightColor = baseColor.clone().multiplyScalar(1 + progress * 0.8);
-      material.color.copy(brightColor);
+      // Keep original color - don't brighten
+      material.color.copy(baseColor);
 
-      // Add emissive glow
+      // Very subtle emissive for a hint of glow
       material.emissive.copy(baseColor);
-      material.emissiveIntensity = progress * 1.5;
+      material.emissiveIntensity = progress * 0.15;
 
-      // Ultra polished metal
-      material.roughness = THREE.MathUtils.lerp(0.15, 0.02, progress);
-      material.envMapIntensity = THREE.MathUtils.lerp(2, 5, progress);
+      // Ultra polished metallic surface
+      material.metalness = THREE.MathUtils.lerp(1, 1, progress);
+      material.roughness = THREE.MathUtils.lerp(0.15, 0.01, progress);
+      material.envMapIntensity = THREE.MathUtils.lerp(2, 8, progress);
 
-      // Scale up slightly
-      mesh.scale.setScalar(1 + progress * 0.2);
+      // No scaling
+      mesh.scale.setScalar(1);
     } else {
       // Reset to normal
       material.color.copy(baseColor);
       material.emissive.set(0x000000);
       material.emissiveIntensity = 0.1;
+      material.metalness = 1;
       material.roughness = 0.15;
       material.envMapIntensity = 2;
       mesh.scale.setScalar(1);
@@ -110,7 +111,6 @@ const RubiksCube = ({
 }: RubiksCubeProps) => {
   const groupRef = useRef<THREE.Group>(null);
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-  const [groupHovered, setGroupHovered] = useState(false);
   const cubeSize = 0.32;
   const gap = 0.05;
 
@@ -143,12 +143,8 @@ const RubiksCube = ({
       // Floating animation
       groupRef.current.position.y += Math.sin(t * 1.5) * floatAmplitude * 0.01;
 
-      // Scale up slightly when any piece is hovered
-      const targetScale = (hoveredIndex !== null || groupHovered) ? scale * 1.1 : scale;
-      const currentScale = groupRef.current.scale.x;
-      groupRef.current.scale.setScalar(
-        THREE.MathUtils.lerp(currentScale, targetScale, 0.08)
-      );
+      // Keep scale consistent - no scaling on hover
+      groupRef.current.scale.setScalar(scale);
     }
   });
 
@@ -156,9 +152,7 @@ const RubiksCube = ({
     <group
       ref={groupRef}
       {...groupProps}
-      onPointerEnter={() => setGroupHovered(true)}
       onPointerLeave={() => {
-        setGroupHovered(false);
         setHoveredIndex(null);
         document.body.style.cursor = 'auto';
       }}
