@@ -47,17 +47,19 @@ const CubePiece = ({
     const progress = hoverProgress.current;
 
     if (progress > 0.01) {
-      // Keep original color - don't brighten
-      material.color.copy(baseColor);
+      // Slightly brighten color for metallic pop
+      const brightColor = baseColor.clone().lerp(new THREE.Color(0xffffff), progress * 0.3);
+      material.color.copy(brightColor);
 
-      // Very subtle emissive for a hint of glow
-      material.emissive.copy(baseColor);
-      material.emissiveIntensity = progress * 0.15;
+      // Strong emissive with white tint for metallic shine
+      const emissiveColor = baseColor.clone().lerp(new THREE.Color(0xffffff), progress * 0.5);
+      material.emissive.copy(emissiveColor);
+      material.emissiveIntensity = progress * 0.4;
 
-      // Ultra polished metallic surface
-      material.metalness = THREE.MathUtils.lerp(1, 1, progress);
-      material.roughness = THREE.MathUtils.lerp(0.15, 0.01, progress);
-      material.envMapIntensity = THREE.MathUtils.lerp(2, 8, progress);
+      // Ultra polished chrome-like surface
+      material.metalness = 1;
+      material.roughness = THREE.MathUtils.lerp(0.15, 0.0, progress); // Mirror smooth
+      material.envMapIntensity = THREE.MathUtils.lerp(2, 12, progress); // Very strong reflections
 
       // No scaling
       mesh.scale.setScalar(1);
