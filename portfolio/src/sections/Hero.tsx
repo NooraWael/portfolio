@@ -101,13 +101,13 @@ const Hero = () => {
 
   return (
     <div className="relative w-full min-h-screen bg-black overflow-hidden">
-      <div className="absolute inset-0 opacity-80">
+      <div className="absolute inset-0 opacity-80 z-0">
         <PuzzleScene />
       </div>
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 via-transparent to-purple-900/30 pointer-events-none" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 via-transparent to-purple-900/30 pointer-events-none z-5" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent pointer-events-none z-5" />
 
-      <div className="relative z-10 min-h-screen flex items-center px-6 md:px-12 lg:px-20 pt-40 pb-24">
+      <div className="relative z-10 min-h-screen flex items-center px-6 md:px-12 lg:px-20 pt-40 pb-24 pointer-events-none">
         <div className="w-full max-w-4xl mx-auto space-y-10 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -172,7 +172,7 @@ const Hero = () => {
               transition={{ duration: 0.8, delay: 1.2 }}
               className="flex flex-wrap justify-center gap-4 pt-4"
             >
-              <Link to="/projects">
+              <Link to="/projects" className="pointer-events-auto">
                 <motion.button
                   onMouseEnter={() => setVariant('link')}
                   onMouseLeave={() => setVariant('default')}
@@ -188,7 +188,7 @@ const Hero = () => {
                 </motion.button>
               </Link>
 
-              <Link to="/speaking">
+              <Link to="/speaking" className="pointer-events-auto">
                 <motion.button
                   onMouseEnter={() => setVariant('link')}
                   onMouseLeave={() => setVariant('default')}
@@ -200,7 +200,7 @@ const Hero = () => {
                 </motion.button>
               </Link>
 
-              <Link to="/contact">
+              <Link to="/contact" className="pointer-events-auto">
                 <motion.button
                   onMouseEnter={() => setVariant('link')}
                   onMouseLeave={() => setVariant('default')}
@@ -226,7 +226,7 @@ const Hero = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 1.4 + index * 0.1 }}
                   whileHover={{ y: -4 }}
-                  className="flex items-start gap-3 p-6 rounded-2xl bg-black/40 border border-white/5 backdrop-blur-sm"
+                  className="flex items-start gap-3 p-6 rounded-2xl bg-black/40 border border-white/5 backdrop-blur-sm pointer-events-auto"
                 >
                   <item.icon className="w-6 h-6 text-blue-400 flex-shrink-0" />
                   <div>
