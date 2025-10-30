@@ -66,12 +66,12 @@ const signatureApproach = [
   },
 ];
 
-const trustedBy = [
-  "Dream Big Bahrain",
-  "Zain Bahrain",
-  "Bahrain Polytechnic",
-  "Reboot Coding Institute",
-];
+// const trustedBy = [
+//   "Dream Big Bahrain",
+//   "Zain Bahrain",
+//   "Bahrain Polytechnic",
+//   "Reboot Coding Institute",
+// ];
 
 const Speaker = () => {
   const heroImage = "/speakingMain.jpeg";
