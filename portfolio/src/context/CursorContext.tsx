@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { motion, useMotionValue } from 'framer-motion';
+import { motion, useMotionValue, TargetAndTransition } from 'framer-motion';
 
 type CursorVariant = 'default' | 'cube' | 'link';
 
@@ -16,7 +16,7 @@ const variantSizeMap: Record<CursorVariant, number> = {
   link: 32,
 };
 
-const cursorStyles: Record<CursorVariant, Record<string, unknown>> = {
+const cursorStyles: Record<CursorVariant, TargetAndTransition> = {
   default: {
     width: 16,
     height: 16,
