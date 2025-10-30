@@ -40,6 +40,7 @@ const Navbar = () => {
             <NavLink to="/" isActive={location.pathname === "/"}>Home</NavLink>
             <NavLink to="/about" isActive={location.pathname === "/about"}>About</NavLink>
             <NavLink to="/projects" isActive={location.pathname === "/projects"}>Projects</NavLink>
+            <NavLink to="/speaking" isActive={location.pathname === "/speaking"}>Speaking</NavLink>
             <NavLink to="/contact" isActive={location.pathname === "/contact"}>Contact</NavLink>
           </div>
 
@@ -78,6 +79,9 @@ const Navbar = () => {
               </MobileNavLink>
               <MobileNavLink to="/projects" onClick={() => setIsOpen(false)}>
                 Projects
+              </MobileNavLink>
+              <MobileNavLink to="/speaking" onClick={() => setIsOpen(false)}>
+                Speaking
               </MobileNavLink>
               <MobileNavLink to="/contact" onClick={() => setIsOpen(false)}>
                 Contact

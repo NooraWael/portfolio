@@ -127,27 +127,38 @@ const Hero = () => {
               I'm a <span ref={textRef} className="text-blue-500"></span>
             </div>
 
-            <div className="flex space-x-4 pt-8">
-            <Link to="/projects">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 bg-blue-600 text-white rounded-xl font-bold 
-                  hover:bg-blue-700 transition-colors duration-300
-                  shadow-lg shadow-blue-500/30"
-              >
-                View Projects
-              </motion.button>
+            <div className="flex flex-wrap gap-4 pt-8">
+              <Link to="/projects">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-8 py-4 bg-blue-600 text-white rounded-xl font-bold 
+                    hover:bg-blue-700 transition-colors duration-300
+                    shadow-lg shadow-blue-500/30"
+                >
+                  View Projects
+                </motion.button>
+              </Link>
+              <Link to="/speaking">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-8 py-4 bg-purple-600 text-white rounded-xl font-bold
+                    hover:bg-purple-700 transition-colors duration-300
+                    shadow-lg shadow-purple-500/30"
+                >
+                  Book Me to Speak
+                </motion.button>
               </Link>
               <Link to="/contact">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-8 py-4 border-2 border-blue-500 text-blue-500 rounded-xl font-bold 
-                  hover:bg-blue-500/10 transition-colors duration-300"
-              >
-                Contact Me
-              </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-8 py-4 border-2 border-blue-500 text-blue-500 rounded-xl font-bold 
+                    hover:bg-blue-500/10 transition-colors duration-300"
+                >
+                  Contact Me
+                </motion.button>
               </Link>
             </div>
           </motion.div>
@@ -209,7 +220,7 @@ const Hero = () => {
             className="p-6 rounded-lg bg-[#252525] hover:bg-[#2A2A2A] transition-colors"
           >
             <h3 className="text-blue-400 mb-2">Experience</h3>
-            <p className="text-gray-300">1 year in Full Stack Development</p>
+            <p className="text-gray-300">2 years in Full Stack Development</p>
           </motion.div>
 
  
