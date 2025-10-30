@@ -127,7 +127,6 @@ const Scene = () => {
         <RubiksCube
           scale={3.5}
           floatAmplitude={0.45}
-          hovered={cubeHover}
           onPointerEnter={handleCubeEnter}
           onPointerLeave={handleCubeLeave}
           onPointerMove={handleCubeMove}

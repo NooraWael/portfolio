@@ -53,7 +53,7 @@ const CombinedScene = () => {
       <Environment files="/brown_photostudio_01_4k.hdr" background={false} />
 
       {puzzlePieces}
-      <RubiksCube />
+      <RubiksCube position={[4, 2, 0]} scale={1.2} />
 
       {/* Optional: Background plane */}
       <mesh position={[0, 0, -5]} receiveShadow>
