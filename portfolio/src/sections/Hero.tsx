@@ -101,13 +101,13 @@ const Hero = () => {
 
   return (
     <div className="relative w-full min-h-screen bg-black overflow-hidden">
-      <div className="absolute inset-0 opacity-80 z-0">
+      <div className="absolute inset-0 opacity-80 z-0 pointer-events-none lg:pointer-events-auto">
         <PuzzleScene />
       </div>
       <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 via-transparent to-purple-900/30 pointer-events-none z-5" />
       <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent pointer-events-none z-5" />
 
-      <div className="relative z-10 min-h-screen flex items-center px-6 md:px-12 lg:px-20 pt-40 pb-24 pointer-events-none">
+      <div className="relative z-10 min-h-screen flex items-center px-6 md:px-12 lg:px-20 pt-40 pb-24">
         <div className="w-full max-w-4xl mx-auto space-y-10 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -145,9 +145,9 @@ const Hero = () => {
             </motion.h2>
 
             <h1 ref={titleRef} className="text-6xl md:text-8xl font-bold text-white tracking-tight">
-              <div className="mb-2">{splitText('Noora')}</div>
+              {/* <div className="mb-2">{splitText('Noora')}</div> */}
               <div className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
-                {splitText('Qasim')}
+                {splitText('Noora')}
               </div>
             </h1>
 
