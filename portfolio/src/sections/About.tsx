@@ -1,221 +1,391 @@
-import { useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useSpring,
+  MotionValue,
+  useMotionTemplate,
+} from 'framer-motion';
 import gsap from 'gsap';
-import { Calendar, GraduationCap, Briefcase, Award, MapPin } from 'lucide-react';
+import { Calendar, GraduationCap, Briefcase, Award, MapPin, RocketIcon } from 'lucide-react';
 import PageTransition from '../components/pageTransition';
 import photo from '../assets/photo.png';
 import cvFile from '../assets/NooraWaelCV.pdf';
-import { Link } from 'react-router-dom';
+import { useCursor } from '../context/CursorContext';
+import { usePageTransition } from '../context/TransitionContext';
 
+type EduItem = {
+  year: string;
+  degree: string;
+  school: string;
+  description: string;
+};
+
+type ExpItem = {
+  year: string;
+  role: string;
+  company: string;
+  location: string;
+  description: string;
+};
+
+function clamp01(n: number) {
+  return Math.min(1, Math.max(0, n));
+}
+function clamp(n: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, n));
+}
+
+/**
+ * Smooth stacked scrollytelling with end-hold.
+ */
+function StackedSlides<T>({
+  items,
+  progress,
+  render,
+  endHoldStart = 0.85,
+}: {
+  items: T[];
+  progress: MotionValue<number>;
+  render: (item: T) => React.ReactNode;
+  endHoldStart?: number;
+}) {
+  const len = Math.max(1, items.length);
+  const denom = len - 1 || 1;
+
+  // end hold
+  const p = useTransform(progress, [0, endHoldStart, 1], [0, 1, 1]);
+
+  return (
+    <div className="relative min-h-[260px]">
+      {items.map((item, i) => {
+        const overlap = i === 0 ? 0.95 : 0.75;
+
+        const start = (i - overlap) / denom;
+        const mid = i / denom;
+        const end = (i + overlap) / denom;
+
+        const safeStart = clamp01(start);
+        const safeMid = clamp01(mid);
+        const safeEnd = clamp01(end);
+
+        const isLast = i === len - 1;
+
+        const opacity = isLast
+          ? useTransform(p, [safeStart, safeMid], [0, 1])
+          : useTransform(p, [safeStart, safeMid, safeEnd], [0, 1, 0]);
+
+        const y = isLast
+          ? useTransform(p, [safeStart, safeMid], [14, 0])
+          : useTransform(p, [safeStart, safeMid, safeEnd], [14, 0, -14]);
+
+        const scale = useTransform(p, [safeStart, safeMid], [0.995, 1]);
+
+        const blur = isLast
+          ? useTransform(p, [safeStart, safeMid], [1.5, 0])
+          : useTransform(p, [safeStart, safeMid, safeEnd], [1.5, 0, 1.5]);
+
+        const filter = useMotionTemplate`blur(${blur}px)`;
+
+        return (
+          <motion.div key={i} style={{ opacity, y, scale, filter }} className="absolute inset-0">
+            {render(item)}
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+}
 
 const About = () => {
   const contentRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+  const eduSectionRef = useRef<HTMLElement>(null);
+  const expSectionRef = useRef<HTMLElement>(null);
+  const eduCardRef = useRef<HTMLDivElement>(null);
+
+  const { setVariant } = useCursor();
+  const { trigger } = usePageTransition();
+
+  const education: EduItem[] = useMemo(
+    () => [
+      {
+        year: '2021 - 2025',
+        degree: "Bachelor's in Information and Communication Technology - Programming Major",
+        school: 'Bahrain Polytechnic',
+        description:
+          'Focused on understanding the basics of programming and software development, learnt many technologies and compentencies such as Java, C#, HTML, CSS, JavaScript and more. The experience also provided me with the soft skill set needed to start any production level code and work in teams.',
+      },
+      {
+        year: '2023 - 2025',
+        degree: 'Diploma in Full Stack Development',
+        school: 'Reboot Coding Institute',
+        description:
+          'Worked on a variety of projects including deep system architecture, algorithms, web development. Currently in specialization for DevOps and Cloud Engineering, focusing on AWS and Azure. Along with Mobile Development using React Native and Expo.',
+      },
+      {
+        year: '2025',
+        degree: 'Professional Scrum Master Certification',
+        school: 'Scrum.org',
+        description:
+          'A certification that validates my knowledge of Scrum and Agile methodologies, focusing on the principles and practices of Scrum while imporving my proffessional career path.',
+      },
+    ],
+    []
+  );
+
+  const experience: ExpItem[] = useMemo(
+    () => [
+      {
+        year: '2024 - 6 months',
+        role: 'Web Development Intern',
+        company: 'Raincode',
+        location: 'Manama Bahrain, Stockholm Sweden',
+        description:
+          'Worked on a project that used WordPress to create a website for the client, worked on a team of 4 that taught me how to work in a team and how to use the Agile methodology. Implemented Scrum and Kanban to manage the project effectively. You can view the project on Raincode.tech and Raincode.bh',
+      },
+      {
+        year: 'January 2025 - Present',
+        role: 'Mobile development Team Lead',
+        company: 'Raincode | Foremarket',
+        location: 'Manama Bahrain, Stockholm Sweden',
+        description:
+          'Worked on implementing a mobile application for the client using React Native and Expo. The project is a mobile application that is a second hand marketplace for golf, people can buy exchange or sell their golf equipment. The project has been released and is on Swedish market and I am leading and working with 3 other developers to expand the project internationally into the Nordic and Americas.',
+      },
+    ],
+    []
+  );
+
+  // overall progress + scrollY inside the container
+  const { scrollYProgress: containerProgress } = useScroll({
+    container: scrollContainerRef,
+    target: contentRef,
+    offset: ['start start', 'end end'],
+  });
+  const { scrollY } = useScroll({ container: scrollContainerRef });
+
+  // education/experience progress inside container
+  const { scrollYProgress: eduProgressRaw } = useScroll({
+    container: scrollContainerRef,
+    target: eduSectionRef,
+    offset: ['start 80%', 'end 20%'],
+  });
+  const { scrollYProgress: expProgressRaw } = useScroll({
+    container: scrollContainerRef,
+    target: expSectionRef,
+    offset: ['start 80%', 'end 20%'],
+  });
+
+  const eduProgress = useSpring(eduProgressRaw, { stiffness: 70, damping: 28, mass: 0.6 });
+  const expProgress = useSpring(expProgressRaw, { stiffness: 70, damping: 28, mass: 0.6 });
+
+  const eduCardOpacity = useTransform(eduProgress, [0, 0.08, 1], [0, 1, 1]);
+  const eduCardScale = useTransform(eduProgress, [0, 0.12, 1], [0.985, 1, 1]);
+
+  const expCardOpacity = useTransform(expProgress, [0, 0.08, 1], [0, 1, 1]);
+  const expCardScale = useTransform(expProgress, [0, 0.12, 1], [0.985, 1, 1]);
+
+  // -------------------------
+  // Intro GSAP
+  // -------------------------
   useEffect(() => {
-    const timeline = gsap.timeline();
-    
+    const tl = gsap.timeline();
     if (contentRef.current) {
-      timeline.fromTo(
+      tl.fromTo(
         contentRef.current.children,
         { y: 50, opacity: 0 },
-        {
-          y: 0,
-          opacity: 1,
-          duration: 0.6,
-          stagger: 0.2,
-          ease: 'power3.out',
-          delay: 0.3
-        }
+        { y: 0, opacity: 1, duration: 0.6, stagger: 0.18, ease: 'power3.out', delay: 0.2 }
       );
     }
-
-    return () => {
-      timeline.kill();
-    };
+    return () => tl.kill();
   }, []);
 
-  const education = [
-    {
-      year: "2021 - 2025",
-      degree: "Bachelor's in Information and Communication Technology - Programming Major", 
-      school: "Bahrain Polytechnic",
-      description: "Focused on understanding the basics of programming and software development, learnt many technologies and compentencies such as Java, C#, HTML, CSS, JavaScript and more. The experience also provided me with the soft skill set needed to start any production level code and work in teams."
-    },
-    {
-      year: "2023 - 2025",
-      degree: "Diploma in Full Stack Development",
-      school: "Reboot Coding Institute",
-      description: "Worked on a variety of projects including deep system architecture, algorithms, web development. Currently in specialization for DevOps and Cloud Engineering, focusing on AWS and Azure. Along with Mobile Development using React Native and Expo."
-    },
-    {
-      year: "2025",
-      degree: "Professional Scrum Master Certification", 
-      school: "Scrum.org",
-      description: "A certification that validates my knowledge of Scrum and Agile methodologies, focusing on the principles and practices of Scrum while imporving my proffessional career path."
-    }
-  ];
-
-  const experience = [
-    {
-      year: "2024 - 6 months",
-      role: "Web Development Intern",
-      company: "Raincode",
-      location: "Manama Bahrain, Stockholm Sweden",
-      description: "Worked on a project that used WordPress to create a website for the client, worked on a team of 4 that taught me how to work in a team and how to use the Agile methodology. Implemented Scrum and Kanban to manage the project effectively. You can view the project on Raincode.tech and Raincode.bh"
-    },
-    {
-      year: "January 2025 - Present",
-      role: "Mobile development Team Lead",
-      company: "Raincode | Foremarket",
-      location: "Manama Bahrain, Stockholm Sweden",
-      description: "Worked on implementing a mobile application for the client using React Native and Expo. The project is a mobile application that is a second hand marketplace for golf, people can buy exchange or sell their golf equipment. The project has been released and is on Swedish market and I am leading and working with 3 other developers to expand the project internationally into the Nordic and Americas."
-    }
-  ];
+  // section heights
+  const SCROLL_PER_ITEM = 110;
+  const eduHeight = `${Math.max(1, education.length) * SCROLL_PER_ITEM}vh`;
+  const expHeight = `${Math.max(1, experience.length) * SCROLL_PER_ITEM}vh`;
 
   return (
     <PageTransition>
-      <div className="flex min-h-screen w-full fixed inset-0 overflow-hidden">
-        <div className="flex flex-col w-full bg-black overflow-y-auto">
-          {/* Added pt-28 to account for navbar height (h-20) plus extra spacing */}
-          <div ref={contentRef} className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-28 pb-20 space-y-24">
-            {/* Header Section */}
-            <div className="text-center">
-              <h1 className="text-5xl font-bold text-white mb-4">About Me</h1>
-              <div className="w-20 h-1 bg-blue-500 mx-auto"></div>
-            </div>
+      <div className="relative min-h-screen w-full overflow-hidden bg-[#050505] text-[#e6e6e6]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(255,255,255,0.05),transparent_35%),radial-gradient(circle_at_80%_10%,rgba(255,255,255,0.04),transparent_35%),radial-gradient(circle_at_50%_80%,rgba(255,255,255,0.03),transparent_40%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.03)_0%,rgba(255,255,255,0)_40%,rgba(255,255,255,0.05)_100%)] opacity-70" />
 
-            {/* Main Info Section */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        {/* INNER SCROLL CONTAINER */}
+        <div ref={scrollContainerRef} className="relative z-10 h-screen w-full overflow-y-auto">
+          <div
+            ref={contentRef}
+            className="w-full max-w-6xl mx-auto px-6 md:px-10 lg:px-14 pt-28 pb-24 space-y-20"
+          >
+            {/* TOP */}
+            <div className="grid lg:grid-cols-[1.1fr_0.9fr] gap-12 items-center relative">
               <div className="space-y-6">
-                <h2 className="text-3xl font-bold text-white">
-                  Full Stack Developer & React Native Fanatic
-                </h2>
-                <p className="text-gray-300 text-lg leading-relaxed">
-                  With a passion for creating beautiful and functional applications,
-                  I bring ideas to life through clean code and intuitive design.
+                <div className="inline-flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-gray-400">
+                  <div className="h-px w-10 bg-white/15" />
+                  About Noora
+                </div>
+
+                <h1 className="text-4xl md:text-5xl font-serif text-white leading-[1.1] drop-shadow-[0_16px_50px_rgba(0,0,0,0.7)]">
+                  Calm builder of resilient systems and crafted experiences.
+                </h1>
+
+                <p className="text-lg text-gray-100 leading-relaxed">
+                  I design, architect, and ship cross-platform products with a systems-first mindset.
+                  From mobile to 3D interactions, I care about deliberate experiences, reliable delivery,
+                  and documentation that keeps teams aligned.
                 </p>
-                <p className="text-gray-300 text-lg leading-relaxed">
-                  My journey in technology started with web development, and I've since
-                  expanded into game development and mobile applications, working on
-                  various projects that have sharpened my skills across different platforms.
-                </p>
-                <div className="flex gap-4">
+
+                <div className="flex flex-wrap gap-3 text-sm text-gray-300">
+                  <span className="px-3 py-2 rounded-full border border-white/10 bg-white/5">
+                    React Native & Expo
+                  </span>
+                  <span className="px-3 py-2 rounded-full border border-white/10 bg-white/5">
+                    Three.js & Storytelling
+                  </span>
+                  <span className="px-3 py-2 rounded-full border border-white/10 bg-white/5">
+                    Systems & DevOps
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap gap-4 pt-4">
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="px-6 py-3 bg-blue-600 text-white rounded-lg
-                      hover:bg-blue-700 transition-colors shadow-lg shadow-blue-500/30"
-                      onClick={() => {
-                        const link = document.createElement('a');
-                        link.href = cvFile;
-                        link.download = 'Noora_Qasim_CV.pdf';
-                        link.click();
-                      }}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      trigger('/projects');
+                    }}
+                    onMouseEnter={() => setVariant('link')}
+                    onMouseLeave={() => setVariant('default')}
+                    whileHover={{ scale: 1.04, boxShadow: '0 20px 70px rgba(0, 0, 0, 0.45)' }}
+                    whileTap={{ scale: 0.97 }}
+                    className="group relative px-8 py-3 rounded-full border border-white/10 bg-gradient-to-b from-[#141414] to-[#090909] text-[#f7f7f7] font-semibold tracking-wide"
+                  >
+                    <span className="relative z-10 flex items-center gap-2">
+                      <RocketIcon className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
+                      View Projects
+                    </span>
+                    <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.08),transparent_60%)]" />
+                  </motion.button>
+
+                  <motion.button
+                    onClick={() => {
+                      const link = document.createElement('a');
+                      link.href = cvFile;
+                      link.download = 'Noora_Qasim_CV.pdf';
+                      link.click();
+                    }}
+                    onMouseEnter={() => setVariant('link')}
+                    onMouseLeave={() => setVariant('default')}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.97 }}
+                    className="px-8 py-3 rounded-full border border-white/10 text-gray-200 font-semibold tracking-wide bg-white/5 hover:bg-white/10 transition-all"
                   >
                     Download CV
                   </motion.button>
-                  <Link to="/projects">
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="px-6 py-3 border-2 border-blue-500 text-blue-500
-                      rounded-lg hover:bg-blue-500/10 transition-colors"
-                  >
-                    My Work
-                  </motion.button>
-                  </Link>
                 </div>
               </div>
 
-              {/* Profile Image Section */}
+              {/* PHOTO CARD (measured) */}
               <div className="relative w-full aspect-square">
-                <div className="w-full h-full rounded-2xl bg-gradient-to-br
-                  from-blue-600/20 to-purple-600/20 overflow-hidden relative group"
-                >
+                <div className="absolute -inset-6 rounded-[28px] bg-gradient-to-br from-white/10 via-transparent to-white/0 blur-3xl opacity-50" />
+                <div className="relative w-full h-full rounded-[24px] border border-white/10 bg-gradient-to-br from-white/5 via-transparent to-white/0 overflow-hidden">
                   <img
                     src={photo}
                     alt="Profile"
-                    className="absolute inset-0 w-full h-full object-cover object-center
-                      group-hover:scale-105 transition-transform duration-500"
+                    className="absolute inset-0 w-full h-full object-cover object-center"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-tr
-                    from-black via-black/50 to-transparent opacity-60"
-                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-black/50 to-transparent" />
                 </div>
               </div>
             </div>
 
-            {/* Education Timeline Section */}
-            <div className="space-y-8">
-              <h2 className="text-3xl font-bold text-white text-center mb-12">
-                Educational Journey
-              </h2>
-              <div className="space-y-12">
-                {education.map((item, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="flex gap-6"
-                  >
-                    <div className="flex-shrink-0">
-                      <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center">
-                        <GraduationCap className="w-6 h-6 text-blue-500" />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-blue-500">
-                        <Calendar className="w-4 h-4" />
-                        <span>{item.year}</span>
-                      </div>
-                      <h3 className="text-xl font-bold text-white">{item.degree}</h3>
-                      <p className="text-gray-400">{item.school}</p>
-                      <p className="text-gray-300">{item.description}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
-            </div>
+            {/* SCROLLYTELLING */}
+            <div className="space-y-24">
+              {/* EDUCATION */}
+              <section ref={eduSectionRef} className="relative" style={{ height: eduHeight }}>
+                <div className="sticky top-32 space-y-4">
+                  <div className="flex items-center gap-3 text-sm uppercase tracking-[0.14em] text-gray-400">
+                    <div className="h-px w-6 bg-white/10" />
+                    Educational Journey
+                  </div>
 
-            {/* Work Experience Timeline Section */}
-            <div className="space-y-8">
-              <h2 className="text-3xl font-bold text-white text-center mb-12">
-                Professional Journey
-              </h2>
-              <div className="space-y-12">
-                {experience.map((item, index) => (
                   <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: 20 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="flex gap-6"
+                    ref={eduCardRef}
+                    style={{ opacity: eduCardOpacity, scale: eduCardScale }}
+                    className="relative overflow-hidden rounded-3xl border border-white/12 bg-black/80 p-6"
                   >
-                    <div className="flex-shrink-0">
-                      <div className="w-12 h-12 bg-blue-500/10 rounded-xl flex items-center justify-center">
-                        <Briefcase className="w-6 h-6 text-blue-500" />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-blue-500">
-                        <Calendar className="w-4 h-4" />
-                        <span>{item.year}</span>
-                      </div>
-                      <h3 className="text-xl font-bold text-white">{item.role}</h3>
-                      <div className="flex items-center gap-2 text-gray-400">
-                        <Award className="w-4 h-4" />
-                        <span>{item.company}</span>
-                        <MapPin className="w-4 h-4 ml-2" />
-                        <span>{item.location}</span>
-                      </div>
-                      <p className="text-gray-300">{item.description}</p>
-                    </div>
+                    <div className="absolute left-6 top-0 bottom-0 w-px bg-white/10" />
+
+                    <StackedSlides
+                      items={education}
+                      progress={eduProgress}
+                      endHoldStart={0.85}
+                      render={(item) => (
+                        <div className="pl-8 space-y-3 [text-shadow:0_2px_18px_rgba(0,0,0,0.55)]">
+                          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.1em] text-gray-200">
+                            <Calendar className="w-4 h-4" />
+                            <span>{item.year}</span>
+                          </div>
+
+                          <div className="flex items-center gap-2 text-gray-100">
+                            <GraduationCap className="w-5 h-5" />
+                            <h3 className="text-xl font-semibold">{item.degree}</h3>
+                          </div>
+
+                          <p className="text-sm text-gray-200">{item.school}</p>
+                          <p className="text-sm text-gray-100 leading-relaxed">{item.description}</p>
+                        </div>
+                      )}
+                    />
                   </motion.div>
-                ))}
-              </div>
+                </div>
+              </section>
+
+              {/* EXPERIENCE */}
+              <section ref={expSectionRef} className="relative" style={{ height: expHeight }}>
+                <div className="sticky top-32 space-y-4">
+                  <div className="flex items-center gap-3 text-sm uppercase tracking-[0.14em] text-gray-400">
+                    <div className="h-px w-6 bg-white/10" />
+                    Professional Journey
+                  </div>
+
+                  <motion.div
+                    style={{ opacity: expCardOpacity, scale: expCardScale }}
+                    className="relative overflow-hidden rounded-3xl border border-white/12 bg-black/80 p-6"
+                  >
+                    <div className="absolute left-6 top-0 bottom-0 w-px bg-white/10" />
+
+                    <StackedSlides
+                      items={experience}
+                      progress={expProgress}
+                      endHoldStart={0.85}
+                      render={(item) => (
+                        <div className="pl-8 space-y-3 [text-shadow:0_2px_18px_rgba(0,0,0,0.55)]">
+                          <div className="flex items-center gap-2 text-xs uppercase tracking-[0.1em] text-gray-200">
+                            <Calendar className="w-4 h-4" />
+                            <span>{item.year}</span>
+                          </div>
+
+                          <div className="flex items-center gap-2 text-gray-100">
+                            <Briefcase className="w-5 h-5" />
+                            <h3 className="text-xl font-semibold">{item.role}</h3>
+                          </div>
+
+                          <div className="flex items-center gap-3 text-sm text-gray-200">
+                            <Award className="w-4 h-4" />
+                            <span>{item.company}</span>
+                            <MapPin className="w-4 h-4 ml-1" />
+                            <span>{item.location}</span>
+                          </div>
+
+                          <p className="text-sm text-gray-100 leading-relaxed">{item.description}</p>
+                        </div>
+                      )}
+                    />
+                  </motion.div>
+                </div>
+              </section>
             </div>
           </div>
         </div>

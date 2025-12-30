@@ -135,7 +135,7 @@ const Hero = () => {
               className="text-gray-400 text-lg leading-relaxed max-w-2xl"
             >
               Building resilient products with a calm, intentional approach. I connect strategy, design, and engineering
-              to ship experiences that feel deliberate—across mobile, web, and interactive canvases.
+              to ship experiences that feel deliberate across mobile, web, and interactive canvases.
             </motion.p>
 
             <motion.div
@@ -144,9 +144,6 @@ const Hero = () => {
               transition={{ duration: 0.8, delay: 0.8 }}
               className="flex flex-wrap gap-3 text-sm text-gray-400"
             >
-              <span className="px-3 py-2 rounded-full border border-white/10 bg-white/5">Product-minded delivery</span>
-              <span className="px-3 py-2 rounded-full border border-white/10 bg-white/5">Interactive 3D storytelling</span>
-              <span className="px-3 py-2 rounded-full border border-white/10 bg-white/5">Systems & documentation</span>
             </motion.div>
 
             <motion.div
@@ -170,6 +167,26 @@ const Hero = () => {
                   <span className="relative z-10 flex items-center gap-2">
                     <RocketIcon className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
                     View Projects
+                  </span>
+                  <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.08),transparent_60%)]" />
+                </motion.button>
+              </Link>
+
+                         <Link to="/projects" className="pointer-events-auto">
+                <motion.button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    trigger('/speaking');
+                  }}
+                  onMouseEnter={() => setVariant('link')}
+                  onMouseLeave={() => setVariant('default')}
+                  whileHover={{ scale: 1.04, boxShadow: '0 20px 70px rgba(0, 0, 0, 0.45)' }}
+                  whileTap={{ scale: 0.97 }}
+                  className="group relative px-8 py-3 rounded-full border border-white/10 bg-gradient-to-b from-[#141414] to-[#090909] text-[#f7f7f7] font-semibold tracking-wide"
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    <RocketIcon className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
+                    View Events
                   </span>
                   <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.08),transparent_60%)]" />
                 </motion.button>
