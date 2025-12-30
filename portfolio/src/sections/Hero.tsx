@@ -2,17 +2,11 @@ import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import gsap from 'gsap';
 import { TextPlugin } from 'gsap/TextPlugin';
-import {
-  RocketIcon,
-  Code2Icon,
-  BrainCircuitIcon,
-  Blocks,
-  Puzzle,
-  Sparkles,
-} from 'lucide-react';
+import { RocketIcon, Code2Icon, Blocks, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import PuzzleScene from '../components/PuzzleScene';
 import { useCursor } from '../context/CursorContext';
+import { usePageTransition } from '../context/TransitionContext';
 
 gsap.registerPlugin(TextPlugin);
 
@@ -20,10 +14,11 @@ const Hero = () => {
   const textRef = useRef<HTMLSpanElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
   const { setVariant } = useCursor();
+  const { trigger } = usePageTransition();
 
   useEffect(() => {
     // Rotate through hero taglines
-    const texts = ['Full Stack Developer.', 'Problem Solver.', 'Creative Technologist.', 'Community Speaker.'];
+    const texts = ['Product-minded engineer.', 'Full stack developer.', 'Experience architect.', 'Community speaker.'];
     const textTimeline = gsap.timeline({
       repeat: -1,
       repeatDelay: 1,
@@ -77,17 +72,17 @@ const Hero = () => {
     {
       icon: Sparkles,
       title: 'Current Focus',
-      description: 'Shipping cross-platform experiences with Expo',
+      description: 'Calm, resilient flows for mobile, web, and realtime surfaces.',
     },
     {
       icon: Code2Icon,
-      title: 'Experience',
-      description: '2 years building full stack products',
+      title: 'Core Stack',
+      description: 'React Native • Expo • Go • Three.js • Framer Motion',
     },
     {
       icon: Blocks,
-      title: 'Toolkit',
-      description: 'React Native • Golang • Unity',
+      title: 'Approach',
+      description: 'Systems thinking, docs-first collaboration, reliable delivery.',
     },
   ];
 
@@ -100,173 +95,139 @@ const Hero = () => {
   };
 
   return (
-    <div className="relative w-full min-h-screen bg-black overflow-hidden">
-      <div className="absolute inset-0 opacity-80 z-0 pointer-events-none lg:pointer-events-auto">
-        <PuzzleScene />
-      </div>
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-900/30 via-transparent to-purple-900/30 pointer-events-none z-5" />
-      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent pointer-events-none z-5" />
+    <div className="relative w-full min-h-screen overflow-hidden bg-[#050505]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(255,255,255,0.08),transparent_32%),radial-gradient(circle_at_80%_0%,rgba(255,255,255,0.06),transparent_26%),radial-gradient(circle_at_50%_78%,rgba(255,255,255,0.04),transparent_32%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.05)_0%,rgba(255,255,255,0)_35%,rgba(255,255,255,0)_65%,rgba(255,255,255,0.06)_100%)] opacity-70" />
+      <div className="absolute -right-32 top-20 h-64 w-64 bg-[#292929] blur-[110px] opacity-40" />
+      <div className="absolute -left-24 bottom-10 h-72 w-72 bg-[#111111] blur-[130px] opacity-50" />
 
-      <div className="relative z-10 min-h-screen flex items-center px-6 md:px-12 lg:px-20 pt-40 pb-24">
-        <div className="w-full max-w-4xl mx-auto space-y-10 text-center">
+      <div className="relative z-10 max-w-6xl mx-auto px-6 md:px-12 lg:px-16 pt-28 pb-20 lg:pt-36 lg:pb-28">
+        <div className="grid items-center gap-12 lg:gap-16 lg:grid-cols-[1.05fr_0.95fr]">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.2 }}
-            className="space-y-8"
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="space-y-6 text-left relative"
           >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.8 }}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-500/10 border border-blue-500/30 rounded-full backdrop-blur-sm mx-auto"
+            <div className="pointer-events-none absolute -left-10 -top-16 h-72 w-72 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.14),transparent_55%)] blur-[90px] opacity-70" />
+            {/* <h1
+              ref={titleRef}
+              className="text-5xl md:text-6xl lg:text-7xl font-serif text-white leading-[1.05] tracking-tight drop-shadow-[0_18px_60px_rgba(0,0,0,0.75)]"
             >
-              <Puzzle className="w-4 h-4 text-blue-400" />
-              <span className="text-blue-400 text-sm font-mono">Solving Complex Problems</span>
-              <Sparkles className="w-4 h-4 text-blue-400 animate-pulse" />
-            </motion.div>
-
-            <motion.span
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-              className="block text-sm uppercase tracking-[0.35em] text-blue-100/80"
-            >
-              I'm a Tech Enthusiast
-            </motion.span>
-
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.6 }}
-              className="text-blue-400 text-xl md:text-2xl font-mono tracking-wider"
-            >
-              {'<Hello World />'}
-            </motion.h2>
-
-            <h1 ref={titleRef} className="text-6xl md:text-8xl font-bold text-white tracking-tight">
-              {/* <div className="mb-2">{splitText('Noora')}</div> */}
-              <div className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400">
-                {splitText('Noora')}
+              <div className="text-sm md:text-base font-semibold tracking-[0.18em] uppercase text-white drop-shadow-[0_10px_30px_rgba(0,0,0,0.65)] mb-4">
+                Noora Qasim — Full-stack Engineer
               </div>
-            </h1>
+              <div className="space-y-2">
+                <div>{splitText('I build systems,')}</div>
+                <div>{splitText('for humans.')}</div>
+              </div>
+            </h1> */}
 
-            <div className="text-2xl md:text-4xl text-gray-300 min-h-[80px]">
-              <span className="text-gray-400">I'm a </span>
-              <span ref={textRef} className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-400 font-bold" />
+            <div className="text-xl md:text-2xl text-gray-100 min-h-[70px]">
+              <span className="text-gray-100">I&apos;m a </span>
+              <span ref={textRef} className="font-semibold text-white drop-shadow-[0_10px_30px_rgba(0,0,0,0.5)]" />
             </div>
 
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ duration: 0.8, delay: 1 }}
-              className="text-gray-400 text-lg leading-relaxed max-w-2xl mx-auto"
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="text-gray-400 text-lg leading-relaxed max-w-2xl"
             >
-              I design and build experiences that feel seamless end-to-end—connecting strategy, design, and
-              engineering to ship polished, resilient products.
+              Building resilient products with a calm, intentional approach. I connect strategy, design, and engineering
+              to ship experiences that feel deliberate—across mobile, web, and interactive canvases.
             </motion.p>
 
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+              className="flex flex-wrap gap-3 text-sm text-gray-400"
+            >
+              <span className="px-3 py-2 rounded-full border border-white/10 bg-white/5">Product-minded delivery</span>
+              <span className="px-3 py-2 rounded-full border border-white/10 bg-white/5">Interactive 3D storytelling</span>
+              <span className="px-3 py-2 rounded-full border border-white/10 bg-white/5">Systems & documentation</span>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 1.2 }}
-              className="flex flex-wrap justify-center gap-4 pt-4"
+              transition={{ duration: 0.8, delay: 1 }}
+              className="flex flex-wrap gap-4 pt-4"
             >
               <Link to="/projects" className="pointer-events-auto">
                 <motion.button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    trigger('/projects');
+                  }}
                   onMouseEnter={() => setVariant('link')}
                   onMouseLeave={() => setVariant('default')}
-                  whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(59, 130, 246, 0.5)' }}
-                  whileTap={{ scale: 0.95 }}
-                  className="group relative px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-xl font-bold overflow-hidden shadow-lg shadow-blue-500/30 transition-all duration-300"
+                  whileHover={{ scale: 1.04, boxShadow: '0 20px 70px rgba(0, 0, 0, 0.45)' }}
+                  whileTap={{ scale: 0.97 }}
+                  className="group relative px-8 py-3 rounded-full border border-white/10 bg-gradient-to-b from-[#141414] to-[#090909] text-[#f7f7f7] font-semibold tracking-wide"
                 >
                   <span className="relative z-10 flex items-center gap-2">
-                    <RocketIcon className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                    <RocketIcon className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
                     View Projects
                   </span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-                </motion.button>
-              </Link>
-
-              <Link to="/speaking" className="pointer-events-auto">
-                <motion.button
-                  onMouseEnter={() => setVariant('link')}
-                  onMouseLeave={() => setVariant('default')}
-                  whileHover={{ scale: 1.05, boxShadow: '0 0 30px rgba(168, 85, 247, 0.5)' }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-8 py-4 bg-gradient-to-r from-purple-600 to-purple-700 text-white rounded-xl font-bold hover:from-purple-500 hover:to-purple-600 transition-all duration-300 shadow-lg shadow-purple-500/30"
-                >
-                  Book Me to Speak
+                  <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.08),transparent_60%)]" />
                 </motion.button>
               </Link>
 
               <Link to="/contact" className="pointer-events-auto">
                 <motion.button
+                  onClick={(e) => {
+                    e.preventDefault();
+                    trigger('/contact');
+                  }}
                   onMouseEnter={() => setVariant('link')}
                   onMouseLeave={() => setVariant('default')}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-8 py-4 border-2 border-blue-500 text-blue-400 rounded-xl font-bold hover:bg-blue-500/10 hover:border-blue-400 transition-all duration-300 backdrop-blur-sm"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.97 }}
+                  className="px-8 py-3 rounded-full border border-white/10 text-gray-200 font-semibold tracking-wide bg-white/5 hover:bg-white/10 transition-all"
                 >
                   Contact Me
                 </motion.button>
               </Link>
             </motion.div>
+          </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.4 }}
-              className="grid gap-6 sm:grid-cols-3 max-w-3xl mx-auto pt-8"
-            >
-              {highlights.map((item, index) => (
-                <motion.div
-                  key={item.title}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1.4 + index * 0.1 }}
-                  whileHover={{ y: -4 }}
-                  className="flex items-start gap-3 p-6 rounded-2xl bg-black/40 border border-white/5 backdrop-blur-sm pointer-events-auto"
-                >
-                  <item.icon className="w-6 h-6 text-blue-400 flex-shrink-0" />
-                  <div>
-                    <p className="text-white font-semibold">{item.title}</p>
-                    <p className="text-gray-400 text-sm leading-relaxed">{item.description}</p>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.6 }}
-              className="flex items-center justify-center gap-6 pt-6"
-            >
-              <motion.div
-                whileHover={{ y: -5, rotate: 5 }}
-                className="w-16 h-16 bg-gradient-to-br from-blue-500/20 to-blue-600/20 rounded-2xl flex items-center justify-center border border-blue-500/30 backdrop-blur-sm"
-              >
-                <RocketIcon className="text-blue-400 w-8 h-8" />
-              </motion.div>
-              <motion.div
-                whileHover={{ y: -5, rotate: -5 }}
-                className="w-16 h-16 bg-gradient-to-br from-purple-500/20 to-purple-600/20 rounded-2xl flex items-center justify-center border border-purple-500/30 backdrop-blur-sm"
-              >
-                <Code2Icon className="text-purple-400 w-8 h-8" />
-              </motion.div>
-              <motion.div
-                whileHover={{ y: -5, rotate: 5 }}
-                className="w-16 h-16 bg-gradient-to-br from-pink-500/20 to-pink-600/20 rounded-2xl flex items-center justify-center border border-pink-500/30 backdrop-blur-sm"
-              >
-                <BrainCircuitIcon className="text-pink-400 w-8 h-8" />
-              </motion.div>
-            </motion.div>
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 1, delay: 0.4 }}
+          >
+            <div className="relative aspect-[4/4] min-h-[360px]">
+              <PuzzleScene />
+            </div>
           </motion.div>
         </div>
-      </div>
 
-      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 opacity-50" />
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.2 }}
+          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-14"
+        >
+          {highlights.map((item, index) => (
+            <motion.div
+              key={item.title}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.2 + index * 0.1 }}
+              whileHover={{ y: -3 }}
+              className="flex items-start gap-3 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm pointer-events-auto"
+            >
+              <item.icon className="w-6 h-6 text-[#d2d2d2] flex-shrink-0" />
+              <div>
+                <p className="text-[#f1f1f1] font-semibold">{item.title}</p>
+                <p className="text-gray-400 text-sm leading-relaxed">{item.description}</p>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </div>
     </div>
   );
 };

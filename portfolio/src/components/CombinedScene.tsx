@@ -1,5 +1,5 @@
 // CombinedScene.tsx
-import { OrbitControls, Environment } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import { PerspectiveCamera } from '@react-three/drei';
 import PuzzlePiece from './PuzzlePiece';
 import RubiksCube from './RubiksCube';
@@ -50,16 +50,8 @@ const CombinedScene = () => {
       <directionalLight position={[10, 10, 5]} intensity={1} castShadow />
       <pointLight position={[0, 0, 10]} intensity={0.5} color="#3b82f6" />
 
-      <Environment files="/brown_photostudio_01_4k.hdr" background={false} />
-
       {puzzlePieces}
-      <RubiksCube position={[4, 2, 0]} scale={1.2} />
-
-      {/* Optional: Background plane */}
-      <mesh position={[0, 0, -5]} receiveShadow>
-        <planeGeometry args={[50, 50]} />
-        <meshStandardMaterial color="#0a0a0a" metalness={0.5} roughness={0.5} />
-      </mesh>
+      <RubiksCube position={[0.8, 1, 0]} scale={1.35} />
     </>
   );
 };
