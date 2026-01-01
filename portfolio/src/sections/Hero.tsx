@@ -85,15 +85,6 @@ const Hero = () => {
       description: 'Systems thinking, docs-first collaboration, reliable delivery.',
     },
   ];
-
-  const splitText = (text: string) => {
-    return text.split('').map((char, index) => (
-      <span key={index} className="letter inline-block">
-        {char === ' ' ? '\u00A0' : char}
-      </span>
-    ));
-  };
-
   return (
     <div className="relative w-full min-h-screen overflow-hidden bg-[#050505]">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(255,255,255,0.08),transparent_32%),radial-gradient(circle_at_80%_0%,rgba(255,255,255,0.06),transparent_26%),radial-gradient(circle_at_50%_78%,rgba(255,255,255,0.04),transparent_32%)]" />

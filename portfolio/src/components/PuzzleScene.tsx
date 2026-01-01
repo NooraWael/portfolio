@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState, forwardRef, RefObject } from 'react';
-import { Canvas, ThreeEvent, useFrame } from '@react-three/fiber';
+import { useCallback, useEffect, useRef, useState, RefObject } from 'react';
+import { Canvas, ThreeEvent } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 import gsap from 'gsap';
@@ -130,27 +130,15 @@ const Scene = ({ containerRef, overlayRef }: { containerRef: RefObject<HTMLDivEl
             0
           )
           .add(() => go(), 1.2)
-          .to(cameraRef.current.position, { z: 6, y: 1.4, duration: 0.75 }, 0)
-          .to(cameraRef.current.position, { z: 3.2, y: 1, duration: 0.95 }, 0.35)
+          .to(cameraRef.current!.position, { z: 6, y: 1.4, duration: 0.75 }, 0)
+          .to(cameraRef.current!.position, { z: 3.2, y: 1, duration: 0.95 }, 0.35)
+          .to(cubeGroupRef.current!.scale, { x: 1.25, y: 1.25, z: 1.25, duration: 0.95 }, 0.1)
           .to(
-            cubeGroupRef.current.scale,
-            { x: 1.25, y: 1.25, z: 1.25, duration: 0.95 },
+            cubeGroupRef.current!.rotation,
+            { x: initialRotation.x + 0.42, y: initialRotation.y + 0.6, duration: 0.95 },
             0.1
           )
-          .to(
-            cubeGroupRef.current.rotation,
-            {
-              x: initialRotation.x + 0.42,
-              y: initialRotation.y + 0.6,
-              duration: 0.95,
-            },
-            0.1
-          )
-          .to(
-            particlesRef.current?.material as THREE.PointsMaterial,
-            { opacity: 0, duration: 0.6 },
-            0.25
-          )
+          .to(particlesRef.current?.material as THREE.PointsMaterial, { opacity: 0, duration: 0.6 }, 0.25)
           .to(
             container,
             {
@@ -171,7 +159,7 @@ const Scene = ({ containerRef, overlayRef }: { containerRef: RefObject<HTMLDivEl
     });
 
     return () => registerCubeZoom(null);
-  }, [registerCubeZoom]);
+  }, [registerCubeZoom, containerRef, overlayRef]);
 
   return (
     <>
