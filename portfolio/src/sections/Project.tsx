@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Github, ExternalLink, Gamepad, Globe, Smartphone, Code, PenTool } from 'lucide-react';
 import PageTransition from '../components/pageTransition';
@@ -28,7 +28,8 @@ const Projects = () => {
   const { setVariant } = useCursor();
 
   // Sample projects data
-  const projects: Project[] = [
+  const projects: Project[] = useMemo(
+    () => [
     {
       id: 1,
       title: 'Foremaret',
@@ -122,7 +123,9 @@ const Projects = () => {
     },
 
     // Add more projects as needed
-  ];
+    ],
+    []
+  );
 
   const filterOptions = [
     { value: 'all', label: 'All Projects', icon: Code },
@@ -138,7 +141,7 @@ const Projects = () => {
         ? projects
         : projects.filter((project) => project.type === selectedFilter);
     setDisplayedProjects(filtered);
-  }, [selectedFilter]);
+  }, [selectedFilter, projects]);
 
   const getProjectIcon = (type: string) => {
     switch (type) {

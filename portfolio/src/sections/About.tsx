@@ -76,19 +76,19 @@ function Slide<T>({
 
   const blurStrength = isLast ? 0.6 : 1.3;
 
-  const opacity = isLast
-    ? useTransform(smoothP, [safeStart, safeMid], [0, 1])
-    : useTransform(smoothP, [safeStart, safeMid, safeEnd], [0, 1, 0]);
+  const opacityInput = isLast ? [safeStart, safeMid] : [safeStart, safeMid, safeEnd];
+  const opacityOutput = isLast ? [0, 1] : [0, 1, 0];
+  const opacity = useTransform(smoothP, opacityInput, opacityOutput);
 
-  const y = isLast
-    ? useTransform(smoothP, [safeStart, safeMid], [14, 0])
-    : useTransform(smoothP, [safeStart, safeMid, safeEnd], [14, 0, -14]);
+  const yInput = isLast ? [safeStart, safeMid] : [safeStart, safeMid, safeEnd];
+  const yOutput = isLast ? [14, 0] : [14, 0, -14];
+  const y = useTransform(smoothP, yInput, yOutput);
 
   const scale = useTransform(smoothP, [safeStart, safeMid], [0.995, 1]);
 
-  const blur = isLast
-    ? useTransform(smoothP, [safeStart, safeMid], [blurStrength, 0])
-    : useTransform(smoothP, [safeStart, safeMid, safeEnd], [blurStrength, 0, blurStrength]);
+  const blurInput = isLast ? [safeStart, safeMid] : [safeStart, safeMid, safeEnd];
+  const blurOutput = isLast ? [blurStrength, 0] : [blurStrength, 0, blurStrength];
+  const blur = useTransform(smoothP, blurInput, blurOutput);
 
   const filter = useMotionTemplate`blur(${blur}px)`;
 
