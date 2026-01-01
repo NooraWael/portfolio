@@ -5,7 +5,6 @@ import Hero from './sections/Hero';
 import About from './sections/About';
 import Projects from './sections/Project';
 import Contact from './sections/Contact';
-import Speaker from './sections/Speaker';
 import { TransitionProvider } from './context/TransitionContext';
 
 function App() {
@@ -22,7 +21,6 @@ function App() {
             <Route path="/" element={<Hero />} />
             <Route path="/about" element={<About />} />
             <Route path="/projects" element={<Projects />} />
-            <Route path="/speaking" element={<Speaker />} />
             <Route path="/contact" element={<Contact />} />
           </Routes>
         </motion.div>

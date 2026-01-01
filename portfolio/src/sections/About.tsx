@@ -1,12 +1,5 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  motion,
-  useScroll,
-  useTransform,
-  useSpring,
-  MotionValue,
-  useMotionTemplate,
-} from 'framer-motion';
+import { useEffect, useMemo, useRef } from 'react';
+import { motion, useScroll, useTransform, useSpring, MotionValue, useMotionTemplate } from 'framer-motion';
 import gsap from 'gsap';
 import { Calendar, GraduationCap, Briefcase, Award, MapPin, RocketIcon } from 'lucide-react';
 import PageTransition from '../components/pageTransition';
@@ -33,13 +26,79 @@ type ExpItem = {
 function clamp01(n: number) {
   return Math.min(1, Math.max(0, n));
 }
-function clamp(n: number, min: number, max: number) {
-  return Math.min(max, Math.max(min, n));
-}
 
 /**
  * Smooth stacked scrollytelling with end-hold.
  */
+function Slide<T>({
+  item,
+  index,
+  len,
+  progress,
+  render,
+  endHoldStart,
+}: {
+  item: T;
+  index: number;
+  len: number;
+  progress: MotionValue<number>;
+  render: (item: T) => React.ReactNode;
+  endHoldStart: number;
+}) {
+  const denom = len - 1 || 1;
+  const overlap = index === 0 ? 0.95 : index === len - 1 ? 0.88 : 0.75;
+  const gapAfterFirst = index === 1 ? 0.08 : 0;
+
+  const start = (index - overlap) / denom + gapAfterFirst;
+  const mid = index / denom + gapAfterFirst;
+  const end = (index + overlap) / denom + gapAfterFirst;
+
+  const p = useTransform(progress, [0, endHoldStart, 1], [0, 1, 1]);
+  const smoothP = useSpring(p, { stiffness: 140, damping: 26, mass: 0.7 });
+
+  const isLast = index === len - 1;
+  let safeStart = clamp01(start);
+  let safeMid = clamp01(mid);
+  let safeEnd = clamp01(end);
+
+  const MIN_SPREAD = 0.16;
+  const EDGE_PAD = 0.07;
+
+  safeStart = clamp01(safeStart - EDGE_PAD);
+  safeEnd = clamp01(safeEnd + EDGE_PAD);
+
+  if (safeMid - safeStart < MIN_SPREAD) safeMid = clamp01(safeStart + MIN_SPREAD);
+  if (!isLast && safeEnd - safeMid < MIN_SPREAD) safeEnd = clamp01(safeMid + MIN_SPREAD);
+  if (isLast) {
+    safeMid = clamp01(Math.min(0.9, Math.max(safeStart + MIN_SPREAD, safeMid - EDGE_PAD)));
+    if (safeEnd - safeMid < MIN_SPREAD) safeEnd = clamp01(safeMid + MIN_SPREAD);
+  }
+
+  const blurStrength = isLast ? 0.6 : 1.3;
+
+  const opacity = isLast
+    ? useTransform(smoothP, [safeStart, safeMid], [0, 1])
+    : useTransform(smoothP, [safeStart, safeMid, safeEnd], [0, 1, 0]);
+
+  const y = isLast
+    ? useTransform(smoothP, [safeStart, safeMid], [14, 0])
+    : useTransform(smoothP, [safeStart, safeMid, safeEnd], [14, 0, -14]);
+
+  const scale = useTransform(smoothP, [safeStart, safeMid], [0.995, 1]);
+
+  const blur = isLast
+    ? useTransform(smoothP, [safeStart, safeMid], [blurStrength, 0])
+    : useTransform(smoothP, [safeStart, safeMid, safeEnd], [blurStrength, 0, blurStrength]);
+
+  const filter = useMotionTemplate`blur(${blur}px)`;
+
+  return (
+    <motion.div key={index} style={{ opacity, y, scale, filter }} className="absolute inset-0">
+      {render(item)}
+    </motion.div>
+  );
+}
+
 function StackedSlides<T>({
   items,
   progress,
@@ -52,48 +111,12 @@ function StackedSlides<T>({
   endHoldStart?: number;
 }) {
   const len = Math.max(1, items.length);
-  const denom = len - 1 || 1;
-
-  // end hold
-  const p = useTransform(progress, [0, endHoldStart, 1], [0, 1, 1]);
 
   return (
-    <div className="relative min-h-[260px]">
-      {items.map((item, i) => {
-        const overlap = i === 0 ? 0.95 : 0.75;
-
-        const start = (i - overlap) / denom;
-        const mid = i / denom;
-        const end = (i + overlap) / denom;
-
-        const safeStart = clamp01(start);
-        const safeMid = clamp01(mid);
-        const safeEnd = clamp01(end);
-
-        const isLast = i === len - 1;
-
-        const opacity = isLast
-          ? useTransform(p, [safeStart, safeMid], [0, 1])
-          : useTransform(p, [safeStart, safeMid, safeEnd], [0, 1, 0]);
-
-        const y = isLast
-          ? useTransform(p, [safeStart, safeMid], [14, 0])
-          : useTransform(p, [safeStart, safeMid, safeEnd], [14, 0, -14]);
-
-        const scale = useTransform(p, [safeStart, safeMid], [0.995, 1]);
-
-        const blur = isLast
-          ? useTransform(p, [safeStart, safeMid], [1.5, 0])
-          : useTransform(p, [safeStart, safeMid, safeEnd], [1.5, 0, 1.5]);
-
-        const filter = useMotionTemplate`blur(${blur}px)`;
-
-        return (
-          <motion.div key={i} style={{ opacity, y, scale, filter }} className="absolute inset-0">
-            {render(item)}
-          </motion.div>
-        );
-      })}
+    <div className="relative min-h-[440px] sm:min-h-[380px] md:min-h-[320px]">
+      {items.map((item, i) => (
+        <Slide key={i} item={item} index={i} len={len} progress={progress} render={render} endHoldStart={endHoldStart} />
+      ))}
     </div>
   );
 }
@@ -159,12 +182,12 @@ const About = () => {
   );
 
   // overall progress + scrollY inside the container
-  const { scrollYProgress: containerProgress } = useScroll({
+  useScroll({
     container: scrollContainerRef,
     target: contentRef,
     offset: ['start start', 'end end'],
   });
-  const { scrollY } = useScroll({ container: scrollContainerRef });
+  useScroll({ container: scrollContainerRef });
 
   // education/experience progress inside container
   const { scrollYProgress: eduProgressRaw } = useScroll({
@@ -199,7 +222,9 @@ const About = () => {
         { y: 0, opacity: 1, duration: 0.6, stagger: 0.18, ease: 'power3.out', delay: 0.2 }
       );
     }
-    return () => tl.kill();
+    return () => {
+      tl.kill();
+    };
   }, []);
 
   // section heights
@@ -293,7 +318,7 @@ const About = () => {
                   <img
                     src={photo}
                     alt="Profile"
-                    className="absolute inset-0 w-full h-full object-cover object-center"
+                    className="absolute inset-0 w-full h-full object-cover object-center filter grayscale brightness-90"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-black/50 to-transparent" />
                 </div>

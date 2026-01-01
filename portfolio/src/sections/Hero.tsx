@@ -101,8 +101,8 @@ const Hero = () => {
       <div className="absolute -right-32 top-20 h-64 w-64 bg-[#292929] blur-[110px] opacity-40" />
       <div className="absolute -left-24 bottom-10 h-72 w-72 bg-[#111111] blur-[130px] opacity-50" />
 
-      <div className="relative z-10 max-w-6xl mx-auto px-6 md:px-12 lg:px-16 pt-28 pb-20 lg:pt-36 lg:pb-28">
-        <div className="grid items-center gap-12 lg:gap-16 lg:grid-cols-[1.05fr_0.95fr]">
+      <div className="relative z-10 max-w-6xl mx-auto px-6 md:px-12 lg:px-16 pt-24 pb-16 sm:pt-28 sm:pb-20 lg:pt-36 lg:pb-28">
+        <div className="grid items-center gap-10 sm:gap-12 lg:gap-16 lg:grid-cols-[1.05fr_0.95fr]">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
@@ -150,8 +150,8 @@ const Hero = () => {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 1 }}
-              className="flex flex-wrap gap-4 pt-4"
-            >
+            className="flex flex-wrap gap-4 pt-4"
+          >
               <Link to="/projects" className="pointer-events-auto">
                 <motion.button
                   onClick={(e) => {
@@ -167,26 +167,6 @@ const Hero = () => {
                   <span className="relative z-10 flex items-center gap-2">
                     <RocketIcon className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
                     View Projects
-                  </span>
-                  <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.08),transparent_60%)]" />
-                </motion.button>
-              </Link>
-
-                         <Link to="/projects" className="pointer-events-auto">
-                <motion.button
-                  onClick={(e) => {
-                    e.preventDefault();
-                    trigger('/speaking');
-                  }}
-                  onMouseEnter={() => setVariant('link')}
-                  onMouseLeave={() => setVariant('default')}
-                  whileHover={{ scale: 1.04, boxShadow: '0 20px 70px rgba(0, 0, 0, 0.45)' }}
-                  whileTap={{ scale: 0.97 }}
-                  className="group relative px-8 py-3 rounded-full border border-white/10 bg-gradient-to-b from-[#141414] to-[#090909] text-[#f7f7f7] font-semibold tracking-wide"
-                >
-                  <span className="relative z-10 flex items-center gap-2">
-                    <RocketIcon className="w-5 h-5 transition-transform group-hover:translate-x-0.5" />
-                    View Events
                   </span>
                   <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.08),transparent_60%)]" />
                 </motion.button>
@@ -215,7 +195,7 @@ const Hero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1, delay: 0.4 }}
           >
-            <div className="relative aspect-[4/4] min-h-[360px]">
+            <div className="relative w-full max-w-[420px] mx-auto aspect-[4/5] min-h-[260px] sm:min-h-[320px] lg:min-h-[420px]">
               <PuzzleScene />
             </div>
           </motion.div>
@@ -225,7 +205,7 @@ const Hero = () => {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.2 }}
-          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-14"
+          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 mt-12 sm:mt-14"
         >
           {highlights.map((item, index) => (
             <motion.div
