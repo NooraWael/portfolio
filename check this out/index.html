@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>THE NOORA FILES — Case #2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Permanent+Marker&family=Caveat:wght@400;600;700&family=Kalam:wght@400;700&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet" />
+<!--
+  ============================================================================
+  THE NOORA FILES — v5 (color-graded, breathable)
+  Needs "detective-room.jpg" next to this file.
+
+  PHOTO SWAP: find [SUBJECT PHOTO SWAP POINT] and replace the placeholder
+  with <img src="your-photo.jpg" alt="Noora Qasim" />.
+  ============================================================================
+-->
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; width: 100%; overflow: hidden; }
+  body {
+    background: #050302;
+    font-family: 'Special Elite', 'Courier New', monospace;
+    color: #2a1f18;
+    user-select: none;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+  /* ============================================================
+     SCENE
+     ============================================================ */
+  .scene {
+    position: relative;
+    aspect-ratio: 3 / 2;
+    width: min(100vw, calc(100vh * 3 / 2));
+    height: min(100vh, calc(100vw * 2 / 3));
+    background-image: url('./detective-room.jpg');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: #000;
+    overflow: hidden;
+  }
+
+  /* Corkboard region + unified color grade to match the photo's palette */
+  .corkboard-area {
+    position: absolute;
+    left: 19.5%;
+    right: 21.5%;
+    top: 15%;
+    bottom: 38%;
+    /* Desaturate + warm + slightly darken = matches lamp-lit photo */
+    filter: saturate(0.78) brightness(0.94);
+    /* Shrink the entire evidence cluster so it fits comfortably inside the board frame */
+    transform: translate(2%, 3%) scale(0.82);
+    transform-origin: center center;
+  }
+  /* Warm amber tint overlay — everything looks lit by the room's lamp */
+  .corkboard-area::after {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 25% 20%, rgba(255, 190, 110, 0.18) 0%, transparent 55%),
+      linear-gradient(180deg, rgba(255, 210, 140, 0.05) 0%, rgba(40, 20, 8, 0.15) 100%);
+    mix-blend-mode: multiply;
+    pointer-events: none;
+    z-index: 99;
+  }
+
+  /* ============================================================
+     YARN
+     ============================================================ */
+  .yarn-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 5;
+    overflow: visible;
+  }
+
+  /* ============================================================
+     PINS — slightly less saturated
+     ============================================================ */
+  .pin {
+    position: absolute;
+    width: 13px; height: 13px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 28% 25%, #e87070 0%, #c42828 30%, #8b1a1a 70%, #3a0a0a 100%);
+    box-shadow:
+      0 3px 5px rgba(0, 0, 0, 0.9),
+      inset -3px -3px 4px rgba(0, 0, 0, 0.55),
+      inset 2px 2px 3px rgba(255, 255, 255, 0.3);
+    z-index: 20;
+    pointer-events: none;
+  }
+  .pin.blue  { background: radial-gradient(circle at 28% 25%, #7bb0dc 0%, #3a78a8 30%, #1a4070 70%, #081a38 100%); }
+  .pin.gold  { background: radial-gradient(circle at 28% 25%, #e8d470 0%, #b89018 30%, #806018 70%, #3a2810 100%); }
+  .pin.green { background: radial-gradient(circle at 28% 25%, #8ac48a 0%, #3a8838 30%, #1c5818 70%, #0a2810 100%); }
+
+  /* ============================================================
+     EVIDENCE BASE
+     ============================================================ */
+  .evidence {
+    position: absolute;
+    z-index: 10;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1), filter 0.3s ease;
+    transform-origin: center top;
+    filter: drop-shadow(3px 5px 8px rgba(0, 0, 0, 0.85));
+  }
+  .evidence:hover {
+    filter: drop-shadow(5px 8px 12px rgba(0, 0, 0, 0.95)) brightness(1.1);
+    z-index: 25;
+  }
+
+  /* Polaroid — warmer, more aged */
+  .polaroid {
+    background-color: #ebddbe;
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='2'/><feColorMatrix values='0 0 0 0 0.6  0 0 0 0 0.48  0 0 0 0 0.28  0 0 0 0.22 0'/></filter><rect width='200' height='200' filter='url(%23f)'/></svg>"),
+      radial-gradient(ellipse at center, transparent 40%, rgba(140, 100, 55, 0.18) 100%),
+      linear-gradient(180deg, #efe0c0 0%, #d6c090 100%);
+    padding: 8% 8% 28% 8%;
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.3) inset,
+      0 -1px 0 rgba(120, 95, 50, 0.25) inset;
+    position: relative;
+  }
+  .polaroid .photo {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: #1a140e;
+    overflow: hidden;
+    position: relative;
+    box-shadow: inset 0 0 16px rgba(0, 0, 0, 0.85);
+  }
+  .polaroid .photo img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: contrast(1.05) saturate(0.85) sepia(0.1);
+  }
+  .polaroid .caption {
+    position: absolute;
+    bottom: 4%; left: 0; right: 0;
+    text-align: center;
+    font-family: 'Caveat', cursive;
+    font-size: clamp(0.65rem, 1vw, 0.95rem);
+    color: #2a1f18;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+  }
+
+  /* Cleaner photo placeholder */
+  .photo-placeholder {
+    width: 100%; height: 100%;
+    background:
+      radial-gradient(ellipse at 50% 45%, #3a2818 0%, #1a100a 80%),
+      linear-gradient(180deg, #3a2414 0%, #140a06 100%);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    color: rgba(220, 190, 140, 0.6);
+    font-family: 'Special Elite', monospace;
+    font-size: clamp(0.42rem, 0.6vw, 0.55rem);
+    letter-spacing: 0.35em;
+    line-height: 1.8;
+    padding: 8%;
+    gap: 4px;
+  }
+  .photo-placeholder small {
+    font-size: 0.6em;
+    letter-spacing: 0.25em;
+    opacity: 0.55;
+    font-style: italic;
+  }
+
+  .tape {
+    position: absolute;
+    background: linear-gradient(90deg,
+      rgba(240, 220, 170, 0.15) 0%,
+      rgba(230, 210, 155, 0.7) 20%,
+      rgba(230, 210, 155, 0.8) 80%,
+      rgba(240, 220, 170, 0.15) 100%);
+    width: 42%; height: 10%;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.35);
+    pointer-events: none;
+  }
+
+  /* ============================================================
+     SUBJECT (center)
+     ============================================================ */
+  .subject {
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) rotate(-2deg);
+    width: 15%;
+    z-index: 15;
+    animation: subject-sway 8s ease-in-out infinite;
+  }
+  @keyframes subject-sway {
+    0%, 100% { transform: translate(-50%, -50%) rotate(-2deg); }
+    50% { transform: translate(-50%, -51.5%) rotate(-1.2deg); }
+  }
+  .subject-label {
+    position: absolute;
+    top: -9%; left: 50%;
+    transform: translateX(-50%) rotate(-2deg);
+    background: #8b2a2a;
+    color: #f0ddb8;
+    padding: 3% 10%;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    font-size: clamp(0.45rem, 0.7vw, 0.65rem);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.85);
+    z-index: 2;
+    white-space: nowrap;
+  }
+  .subject-label::before { content: 'SUBJECT'; }
+  .subject::before {
+    content: '';
+    position: absolute;
+    top: -6%; left: -8%; right: -8%; bottom: 22%;
+    border: 2.5px solid #a52020;
+    border-radius: 50%;
+    transform: rotate(-6deg) scaleX(0.94);
+    opacity: 0.65;
+    pointer-events: none;
+    animation: marker-pulse 3.5s ease-in-out infinite;
+    filter: blur(0.4px);
+  }
+  @keyframes marker-pulse { 0%, 100% { opacity: 0.55; } 50% { opacity: 0.85; } }
+
+  /* ============================================================
+     POSITIONS — fewer, more breathable
+     ============================================================ */
+
+  /* About — top-left, moved further into corner */
+  .ev-about { top: 4%; left: 2%; width: 18%; transform: rotate(-3.5deg); }
+  .ev-about .clipping {
+    background-color: #ddd1a8;
+    background-image:
+      repeating-linear-gradient(180deg, rgba(0,0,0,0.04) 0px, rgba(0,0,0,0.04) 1px, transparent 1px, transparent 4px),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 0.5  0 0 0 0 0.38  0 0 0 0 0.2  0 0 0 0.25 0'/></filter><rect width='200' height='200' filter='url(%23f)'/></svg>"),
+      linear-gradient(180deg, #e5d8ad 0%, #ccbb85 100%);
+    padding: 9% 11%;
+    font-family: 'Special Elite', monospace;
+  }
+  .ev-about .headline {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: clamp(0.62rem, 1vw, 0.92rem);
+    line-height: 1.05;
+    text-transform: uppercase;
+    border-bottom: 2px double #2a1f18;
+    padding-bottom: 4%;
+    margin-bottom: 4%;
+    color: #1a120a;
+  }
+  .ev-about .sub {
+    font-size: clamp(0.48rem, 0.65vw, 0.62rem);
+    line-height: 1.45;
+    color: #3a2a18;
+  }
+
+  /* Projects — top-right, more breathing room */
+  .ev-projects { top: 4%; right: 3%; width: 18%; transform: rotate(2.5deg); }
+  .ev-projects .folder {
+    background-color: #b89868;
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.5' numOctaves='3' seed='5'/><feColorMatrix values='0 0 0 0 0.4  0 0 0 0 0.28  0 0 0 0 0.14  0 0 0 0.32 0'/></filter><rect width='200' height='200' filter='url(%23f)'/></svg>"),
+      linear-gradient(180deg, #c4a877 0%, #9c7a48 100%);
+    padding: 10% 9% 12%;
+    position: relative;
+    clip-path: polygon(0 14%, 55% 14%, 65% 0, 100% 0, 100% 100%, 0 100%);
+  }
+  .ev-projects .stamp {
+    position: absolute;
+    top: 16%; right: 7%;
+    border: 2.5px solid #8b2020;
+    color: #8b2020;
+    padding: 2% 6%;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: clamp(0.42rem, 0.65vw, 0.6rem);
+    letter-spacing: 0.12em;
+    transform: rotate(12deg);
+    opacity: 0.8;
+    white-space: nowrap;
+  }
+  .ev-projects .label {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: clamp(0.55rem, 0.85vw, 0.78rem);
+    letter-spacing: 0.15em;
+    color: #2a1f18;
+    text-transform: uppercase;
+    margin-bottom: 4%;
+  }
+  .ev-projects .count {
+    font-family: 'Permanent Marker', cursive;
+    font-size: clamp(1rem, 1.7vw, 1.55rem);
+    color: #7a1818;
+    line-height: 1;
+  }
+  .ev-projects .count small {
+    display: block;
+    font-family: 'Special Elite', monospace;
+    font-size: clamp(0.35rem, 0.55vw, 0.5rem);
+    color: #4a3620;
+    letter-spacing: 0.2em;
+    margin-top: 3%;
+  }
+
+  /* Speaking — right middle, cleaned up (no cartoon mic) */
+  .ev-speaking { top: 40%; right: 2%; width: 11.5%; transform: rotate(5deg); }
+  .ev-speaking .polaroid .photo {
+    background:
+      radial-gradient(ellipse at 50% 30%, rgba(140, 40, 40, 0.35) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 65%, rgba(200, 120, 60, 0.2) 0%, transparent 50%),
+      linear-gradient(160deg, #2a1610 0%, #1a0a08 50%, #0a0404 100%);
+  }
+  .ev-speaking .polaroid .photo::before {
+    /* indistinct stage light haze */
+    content: '';
+    position: absolute;
+    top: 20%; left: 35%;
+    width: 30%; height: 25%;
+    background: radial-gradient(ellipse, rgba(255, 200, 120, 0.3) 0%, transparent 70%);
+    filter: blur(3px);
+  }
+
+  /* Mentor — bottom-left, sticky note done right */
+  .ev-mentor { bottom: 4%; left: 2.5%; width: 17%; transform: rotate(-5deg); }
+  .ev-mentor .sticky {
+    /* muted mustard, not neon */
+    background-color: #dcc078;
+    background-image:
+      /* paper fiber grain */
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' seed='3'/><feColorMatrix values='0 0 0 0 0.55  0 0 0 0 0.42  0 0 0 0 0.15  0 0 0 0.22 0'/></filter><rect width='100' height='100' filter='url(%23f)'/></svg>"),
+      /* vertical sheen from pin pressure at top */
+      linear-gradient(180deg, #d4b870 0%, #ceb168 40%, #d8ba72 100%);
+    padding: 11% 10% 13%;
+    font-family: 'Kalam', 'Caveat', cursive;
+    font-size: clamp(0.72rem, 0.95vw, 0.92rem);
+    line-height: 1.3;
+    color: #2a1f12;
+    min-height: 85%;
+    position: relative;
+    /* Very slight forward curl via perspective */
+    transform: perspective(500px) rotateX(3deg);
+    transform-origin: top center;
+    /* Inner top shadow — where pin presses into paper */
+    box-shadow: inset 0 3px 5px rgba(0, 0, 0, 0.12);
+  }
+  .ev-mentor .sticky strong {
+    display: block;
+    font-family: 'Permanent Marker', cursive;
+    font-size: clamp(0.82rem, 1.1vw, 1.05rem);
+    margin-bottom: 6%;
+    color: #6a1818;
+    letter-spacing: 0.01em;
+  }
+  /* Curl at bottom right — subtle, not a cartoon triangle */
+  .ev-mentor .sticky::after {
+    content: '';
+    position: absolute;
+    bottom: 0; right: 0;
+    width: 14%; aspect-ratio: 1;
+    background:
+      linear-gradient(135deg,
+        transparent 48%,
+        rgba(0, 0, 0, 0.2) 52%,
+        rgba(180, 150, 80, 0.4) 55%,
+        rgba(220, 195, 130, 0.9) 75%,
+        #e8cf8a 100%);
+    filter: drop-shadow(-1px -1px 1px rgba(0, 0, 0, 0.15));
+  }
+
+  /* Contact — bottom-right */
+  .ev-contact { bottom: 3%; right: 3%; width: 18%; transform: rotate(3.5deg); }
+  .ev-contact .file-card {
+    background-color: #eadfc0;
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' seed='4'/><feColorMatrix values='0 0 0 0 0.58  0 0 0 0 0.44  0 0 0 0 0.22  0 0 0 0.18 0'/></filter><rect width='200' height='200' filter='url(%23f)'/></svg>"),
+      linear-gradient(180deg, #ece2c5 0%, #d8c89f 100%);
+    padding: 8% 9%;
+    border-left: 5px solid #8b2020;
+    font-family: 'Special Elite', monospace;
+  }
+  .ev-contact .file-card .title {
+    font-family: 'Oswald', sans-serif;
+    font-weight: 700;
+    font-size: clamp(0.55rem, 0.85vw, 0.78rem);
+    letter-spacing: 0.2em;
+    color: #7a1818;
+    margin-bottom: 5%;
+  }
+  .ev-contact .file-card .line {
+    font-size: clamp(0.45rem, 0.65vw, 0.6rem);
+    line-height: 1.6;
+    color: #2a1f18;
+    border-bottom: 1px dotted #8b6f4a;
+    padding: 1.5% 0;
+  }
+  .ev-contact .file-card .line strong { color: #5a3a1a; }
+
+  /* Rubik's — left side, slightly smaller, color-graded to fit */
+  .ev-rubiks {
+    top: 44%; left: 2%;
+    width: 9.5%;
+    aspect-ratio: 1 / 1;
+    transform: rotate(-7deg);
+    /* Desaturate the neon colors to match the room */
+    filter: saturate(0.72) brightness(0.95) drop-shadow(3px 5px 8px rgba(0, 0, 0, 0.85));
+  }
+  .ev-rubiks:hover {
+    filter: saturate(0.85) brightness(1.05) drop-shadow(5px 8px 12px rgba(0, 0, 0, 0.95));
+  }
+  .ev-rubiks .cube {
+    width: 100%; height: 100%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 3%; padding: 3%;
+    background: #0a0a0a;
+    box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.95);
+    transition: transform 0.7s cubic-bezier(0.5, -0.5, 0.3, 1.5);
+    transform-style: preserve-3d;
+  }
+  .ev-rubiks:hover .cube { transform: rotate3d(1, 1, 0, 360deg); }
+  .ev-rubiks .cube div { background: #e8e4d8; box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.3); position: relative; }
+  .ev-rubiks .cube div::after {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 60%; height: 45%;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), transparent);
+    pointer-events: none;
+  }
+  .ev-rubiks .cube div:nth-child(1) { background: #b02838; }
+  .ev-rubiks .cube div:nth-child(2) { background: #d8b648; }
+  .ev-rubiks .cube div:nth-child(3) { background: #3a8848; }
+  .ev-rubiks .cube div:nth-child(4) { background: #d08830; }
+  .ev-rubiks .cube div:nth-child(5) { background: #e8e0c8; }
+  .ev-rubiks .cube div:nth-child(6) { background: #2a5898; }
+  .ev-rubiks .cube div:nth-child(7) { background: #3a8848; }
+  .ev-rubiks .cube div:nth-child(8) { background: #b02838; }
+  .ev-rubiks .cube div:nth-child(9) { background: #d8b648; }
+  .ev-rubiks-label {
+    position: absolute;
+    bottom: -22%; left: 50%;
+    transform: translateX(-50%) rotate(-3deg);
+    font-family: 'Caveat', cursive;
+    font-size: clamp(0.58rem, 0.85vw, 0.82rem);
+    color: #d4c08a;
+    white-space: nowrap;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.95);
+    opacity: 0.85;
+  }
+
+  /* ============================================================
+     ONE sticky note + TWO scribbles (breathable)
+     ============================================================ */
+  .note {
+    position: absolute;
+    padding: 6% 7%;
+    font-family: 'Kalam', cursive;
+    font-size: clamp(0.58rem, 0.82vw, 0.78rem);
+    line-height: 1.25;
+    z-index: 8;
+    color: #2a1f18;
+    filter: drop-shadow(2px 4px 6px rgba(0, 0, 0, 0.8));
+    /* Match sticky note styling */
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  .note.coral {
+    background-image:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' seed='5'/><feColorMatrix values='0 0 0 0 0.55  0 0 0 0 0.3  0 0 0 0 0.25  0 0 0 0.22 0'/></filter><rect width='100' height='100' filter='url(%23f)'/></svg>"),
+      linear-gradient(175deg, #c88878 0%, #a86858 100%);
+  }
+  .note::before {
+    content: '';
+    position: absolute;
+    top: -10%; left: 50%;
+    transform: translateX(-50%);
+    width: 14%; aspect-ratio: 1;
+    background: radial-gradient(circle at 28% 25%, #bbbbbb 0%, #666 40%, #2a2a2a 100%);
+    border-radius: 50%;
+    box-shadow: 0 2px 3px rgba(0, 0, 0, 0.75);
+  }
+  .note-scrum {
+    top: 21%; right: 22%;
+    width: 9.5%;
+    transform: rotate(5deg) perspective(400px) rotateX(3deg);
+  }
+
+  .scribble {
+    position: absolute;
+    font-family: 'Permanent Marker', cursive;
+    color: #8b1818;
+    opacity: 0.55;
+    z-index: 7;
+    pointer-events: none;
+    mix-blend-mode: multiply;
+    white-space: nowrap;
+  }
+  .scr-question { top: 10%; left: 44%; font-size: clamp(1.1rem, 1.8vw, 1.7rem); transform: rotate(-10deg); }
+  .scr-arrow { top: 55%; left: 55%; font-size: clamp(0.9rem, 1.3vw, 1.2rem); transform: rotate(5deg); letter-spacing: -0.05em; }
+
+  /* ============================================================
+     ATMOSPHERE
+     ============================================================ */
+  .grain {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    pointer-events: none;
+    opacity: 0.1;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    animation: grain-shift 0.8s steps(4) infinite;
+  }
+  @keyframes grain-shift {
+    0%   { transform: translate(0, 0); }
+    25%  { transform: translate(-2%, 1%); }
+    50%  { transform: translate(1%, -2%); }
+    75%  { transform: translate(-1%, 2%); }
+    100% { transform: translate(0, 0); }
+  }
+
+  /* ============================================================
+     MODAL (unchanged)
+     ============================================================ */
+  .modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.92);
+    backdrop-filter: blur(5px);
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px; overflow-y: auto;
+  }
+  .modal-backdrop.open { opacity: 1; pointer-events: auto; }
+  .modal {
+    background:
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 400'><filter id='f'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' seed='7'/><feColorMatrix values='0 0 0 0 0.65  0 0 0 0 0.5  0 0 0 0 0.28  0 0 0 0.18 0'/></filter><rect width='400' height='400' filter='url(%23f)'/></svg>"),
+      linear-gradient(180deg, #f5ecd3 0%, #e8dcb8 100%);
+    background-color: #f5ecd3;
+    width: 100%; max-width: 700px;
+    max-height: 88vh; overflow-y: auto;
+    padding: 48px 52px;
+    position: relative;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8);
+    transform: scale(0.92) rotate(-0.8deg);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border: 1px solid #8b6f4a;
+  }
+  .modal-backdrop.open .modal { transform: scale(1) rotate(0); }
+  .modal::before {
+    content: '';
+    position: absolute;
+    top: -10px; left: 50%;
+    transform: translateX(-50%) rotate(-1deg);
+    width: 110px; height: 28px;
+    background: rgba(255, 230, 150, 0.78);
+    border-left: 1px dashed rgba(180, 140, 60, 0.4);
+    border-right: 1px dashed rgba(180, 140, 60, 0.4);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.25);
+  }
+  .modal .stamp-corner {
+    position: absolute; top: 24px; right: 32px;
+    border: 3px solid #8b2020; color: #8b2020;
+    padding: 4px 10px;
+    font-family: 'Oswald', sans-serif; font-weight: 700;
+    font-size: 0.75rem; letter-spacing: 0.15em;
+    transform: rotate(8deg); opacity: 0.88;
+  }
+  .modal h2 {
+    font-family: 'Oswald', sans-serif; font-weight: 700;
+    font-size: 2rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #1a120a;
+    border-bottom: 3px double #2a1f18;
+    padding-bottom: 10px; margin-bottom: 6px;
+  }
+  .modal .case-no {
+    font-family: 'Special Elite', monospace;
+    font-size: 0.75rem; letter-spacing: 0.3em;
+    color: #8b1a1a; margin-bottom: 24px;
+  }
+  .modal p {
+    font-family: 'Special Elite', monospace;
+    font-size: 0.95rem; line-height: 1.7;
+    color: #2a1f18; margin-bottom: 14px;
+  }
+  .modal h3 {
+    font-family: 'Oswald', sans-serif; font-weight: 600;
+    font-size: 1.15rem; letter-spacing: 0.1em;
+    text-transform: uppercase; color: #8b1a1a;
+    margin: 22px 0 10px;
+  }
+  .modal .timeline-item {
+    border-left: 2px solid #8b2020;
+    padding: 6px 0 12px 16px;
+    margin-bottom: 6px; position: relative;
+  }
+  .modal .timeline-item::before {
+    content: '';
+    position: absolute; left: -7px; top: 10px;
+    width: 12px; height: 12px;
+    background: #8b2020; border-radius: 50%;
+    box-shadow: 0 0 0 3px #f5ecd3;
+  }
+  .modal .timeline-item .date { font-family: 'Caveat', cursive; font-size: 1.1rem; color: #8b1a1a; font-weight: 700; }
+  .modal .timeline-item .role { font-family: 'Oswald', sans-serif; font-weight: 600; font-size: 1rem; color: #1a120a; }
+  .modal .timeline-item .desc { font-size: 0.85rem; color: #3a2a18; margin-top: 4px; }
+  .modal .project-card {
+    background: rgba(255, 255, 255, 0.42);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    border-left: 3px solid #8b1a1a;
+  }
+  .modal .project-card .name { font-family: 'Oswald', sans-serif; font-weight: 700; color: #1a120a; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .modal .project-card .tags { margin-top: 6px; display: flex; flex-wrap: wrap; gap: 4px; }
+  .modal .project-card .tag { font-family: 'Special Elite', monospace; font-size: 0.65rem; background: #8b2020; color: #fff4d8; padding: 2px 8px; letter-spacing: 0.1em; }
+  .modal .contact-list { list-style: none; padding: 0; }
+  .modal .contact-list li {
+    font-family: 'Special Elite', monospace;
+    font-size: 0.95rem; padding: 10px 0;
+    border-bottom: 1px dotted #8b6f4a;
+    display: flex; justify-content: space-between; gap: 16px;
+  }
+  .modal .contact-list li strong { color: #8b1a1a; letter-spacing: 0.1em; }
+  .modal-close {
+    position: absolute; top: 16px; left: 20px;
+    font-family: 'Oswald', sans-serif;
+    font-size: 1rem; font-weight: 700;
+    color: #8b1a1a; letter-spacing: 0.2em;
+    padding: 6px 12px;
+    border: 2px solid #8b1a1a;
+    background: transparent;
+    transition: all 0.2s;
+  }
+  .modal-close:hover { background: #8b1a1a; color: #f5ecd3; }
+
+  /* Intro */
+  .intro {
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse at center, #1a0f08 0%, #050302 100%);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; text-align: center;
+    color: #f5ecd3;
+    transition: opacity 0.8s ease, visibility 0.8s;
+    cursor: pointer; padding: 20px;
+  }
+  .intro.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+  .intro h1 {
+    font-family: 'Oswald', sans-serif; font-weight: 700;
+    font-size: clamp(2rem, 6vw, 5rem);
+    letter-spacing: 0.25em; margin-bottom: 10px;
+    color: #f5ecd3;
+    animation: intro-in 1.2s ease-out;
+    text-shadow: 0 0 30px rgba(139, 30, 30, 0.4);
+  }
+  .intro h1 span { color: #8b2020; }
+  .intro .subtitle {
+    font-family: 'Special Elite', monospace;
+    letter-spacing: 0.4em;
+    font-size: clamp(0.7rem, 1.3vw, 1rem);
+    color: #a89878; margin-bottom: 36px;
+  }
+  .intro .enter {
+    font-family: 'Oswald', sans-serif;
+    letter-spacing: 0.3em;
+    font-size: 0.9rem;
+    padding: 14px 36px;
+    border: 2px solid #8b2020; color: #8b2020;
+    transition: all 0.3s;
+    background: transparent;
+    animation: pulse-border 2.5s ease-in-out infinite;
+  }
+  .intro .enter:hover { background: #8b2020; color: #fff4d8; }
+  @keyframes pulse-border {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(139, 32, 32, 0.6); }
+    50% { box-shadow: 0 0 0 18px rgba(139, 32, 32, 0); }
+  }
+  @keyframes intro-in {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hint {
+    position: absolute;
+    bottom: 1.5%; left: 2.5%;
+    font-family: 'Special Elite', monospace;
+    font-size: clamp(0.55rem, 0.75vw, 0.7rem);
+    letter-spacing: 0.3em;
+    color: #b8a478;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+    z-index: 50;
+    opacity: 0.8;
+    animation: hint-blink 3s ease-in-out infinite;
+  }
+  @keyframes hint-blink { 0%, 100% { opacity: 0.8; } 50% { opacity: 0.4; } }
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div class="intro" id="intro">
+  <h1>THE NOORA <span>FILES</span></h1>
+  <p class="subtitle">CASE NO. 2026 — CLASSIFIED</p>
+  <button class="enter">ENTER THE INVESTIGATION</button>
+</div>
+
+<!-- SCENE -->
+<div class="scene">
+  <div class="corkboard-area">
+
+    <!-- YARN (fewer strands, cleaner) -->
+    <svg class="yarn-svg" viewBox="0 0 1000 560" preserveAspectRatio="none">
+      <defs>
+        <filter id="yarn-fiber" x="-5%" y="-5%" width="110%" height="110%">
+          <feTurbulence type="fractalNoise" baseFrequency="1.8" numOctaves="2" seed="12" result="noise"/>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.4"/>
+        </filter>
+        <filter id="yarn-shadow" x="-5%" y="-5%" width="110%" height="130%">
+          <feGaussianBlur stdDeviation="2"/>
+        </filter>
+      </defs>
+
+      <g transform="translate(2, 4)" opacity="0.55" filter="url(#yarn-shadow)">
+        <path d="M 500 280 Q 340 170 120 110" stroke="#000" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M 500 280 Q 680 170 880 110" stroke="#000" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M 500 280 Q 720 265 945 275" stroke="#000" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M 500 280 Q 700 430 850 510" stroke="#000" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M 500 280 Q 330 430 160 510" stroke="#000" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+        <path d="M 500 280 Q 300 290 70 285" stroke="#000" stroke-width="3.5" fill="none" stroke-linecap="round"/>
+      </g>
+
+      <g filter="url(#yarn-fiber)" opacity="0.72">
+        <path d="M 500 280 Q 340 172 120 112" stroke="#982020" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M 500 280 Q 680 172 880 112" stroke="#982020" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M 500 280 Q 720 267 945 277" stroke="#982020" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M 500 280 Q 700 432 850 512" stroke="#982020" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M 500 280 Q 330 432 160 512" stroke="#982020" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+        <path d="M 500 280 Q 300 292 70 287" stroke="#982020" stroke-width="4.5" fill="none" stroke-linecap="round"/>
+      </g>
+
+      <g>
+        <path d="M 500 280 Q 340 172 120 112" stroke="#7a1818" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+        <path d="M 500 280 Q 680 172 880 112" stroke="#7a1818" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+        <path d="M 500 280 Q 720 267 945 277" stroke="#7a1818" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+        <path d="M 500 280 Q 700 432 850 512" stroke="#7a1818" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+        <path d="M 500 280 Q 330 432 160 512" stroke="#7a1818" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+        <path d="M 500 280 Q 300 292 70 287" stroke="#7a1818" stroke-width="2.8" fill="none" stroke-linecap="round"/>
+      </g>
+
+      <g transform="translate(0, -0.8)" opacity="0.55">
+        <path d="M 500 280 Q 340 172 120 112" stroke="#b03838" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+        <path d="M 500 280 Q 680 172 880 112" stroke="#b03838" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+        <path d="M 500 280 Q 720 267 945 277" stroke="#b03838" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+        <path d="M 500 280 Q 700 432 850 512" stroke="#b03838" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+        <path d="M 500 280 Q 330 432 160 512" stroke="#b03838" stroke-width="0.9" fill="none" stroke-linecap="round"/>
+      </g>
+    </svg>
+
+    <!-- Center pin -->
+    <div class="pin" style="top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 16;"></div>
+
+    <!-- SUBJECT -->
+    <div class="evidence subject" data-section="about">
+      <div class="subject-label"></div>
+      <div class="polaroid">
+        <div class="photo">
+          <img src="./noora.jpg" alt="Noora Qasim" />
+        </div>
+        <div class="caption">Noora Qasim</div>
+      </div>
+      <div class="tape" style="top: -4%; left: 50%; transform: translateX(-50%) rotate(-3deg);"></div>
+    </div>
+
+    <!-- ABOUT -->
+    <div class="evidence ev-about" data-section="about">
+      <div class="pin" style="top: -4%; left: 50%; transform: translateX(-50%);"></div>
+      <div class="clipping">
+        <div class="headline">Who Is She?</div>
+        <div class="sub">Mobile dev. Tech mentor.<br />Solves mysteries,<br />rubik's cubes, and<br />production bugs.</div>
+      </div>
+    </div>
+
+    <!-- PROJECTS -->
+    <div class="evidence ev-projects" data-section="projects">
+      <div class="pin blue" style="top: -4%; left: 20%;"></div>
+      <div class="folder">
+        <div class="stamp">EXHIBIT A</div>
+        <div class="label">Projects</div>
+        <div class="count">06<small>CASES CLOSED</small></div>
+      </div>
+    </div>
+
+    <!-- SPEAKING -->
+    <div class="evidence ev-speaking" data-section="speaking">
+      <div class="pin gold" style="top: -6%; left: 50%; transform: translateX(-50%);"></div>
+      <div class="polaroid">
+        <div class="photo"></div>
+        <div class="caption">the voice</div>
+      </div>
+    </div>
+
+    <!-- MENTORING -->
+    <div class="evidence ev-mentor" data-section="mentoring">
+      <div class="pin green" style="top: -4%; left: 50%; transform: translateX(-50%);"></div>
+      <div class="sticky">
+        <strong>Tech Mentor</strong>
+        Teaches the ropes.<br />
+        Builds engineers.<br />
+        <em>— active —</em>
+      </div>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="evidence ev-contact" data-section="contact">
+      <div class="pin" style="top: -4%; left: 50%; transform: translateX(-50%);"></div>
+      <div class="file-card">
+        <div class="title">★ CONTACT FILE</div>
+        <div class="line"><strong>LOC:</strong> Manama, BH</div>
+        <div class="line"><strong>EML:</strong> on file</div>
+        <div class="line"><strong>STATUS:</strong> Reachable</div>
+        <div class="line"><strong>ACTION:</strong> Click</div>
+      </div>
+    </div>
+
+    <!-- RUBIK'S -->
+    <div class="evidence ev-rubiks" data-section="rubiks">
+      <div class="cube">
+        <div></div><div></div><div></div>
+        <div></div><div></div><div></div>
+        <div></div><div></div><div></div>
+      </div>
+      <div class="ev-rubiks-label">"hover me"</div>
+    </div>
+
+    <!-- ONE sticky (scrum master) -->
+    <div class="note coral note-scrum">Scrum<br/>Master</div>
+
+    <!-- TWO scribbles only -->
+    <div class="scribble scr-question">?</div>
+    <div class="scribble scr-arrow">→</div>
+  </div>
+
+  <div class="hint">▸ CLICK EVIDENCE TO INVESTIGATE ◂</div>
+
+  <div class="grain"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <button class="modal-close" id="modal-close">✕ CLOSE FILE</button>
+    <div class="stamp-corner">CLASSIFIED</div>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script>
+  const sections = {
+    about: {
+      case: 'CASE FILE #001 — THE SUBJECT',
+      title: 'About the Subject',
+      html: `
+        <p><strong>NAME:</strong> Noora Qasim. <strong>OCCUPATION:</strong> Full-stack & mobile developer, tech mentor. <strong>THEATER OF OPERATIONS:</strong> Bahrain, Sweden, and the global internet.</p>
+        <p>The subject operates primarily in mobile development — React Native, Expo — and has recently been promoted to tech mentor, where she teaches others how to build cool things while continuing to build them herself.</p>
+        <h3>Known Associations</h3>
+        <div class="timeline-item"><div class="date">2021 — 2025</div><div class="role">B.Sc. in ICT / Programming — Bahrain Polytechnic</div><div class="desc">Foundations laid. Java, C#, HTML, CSS, JavaScript. First sightings of collaborative production code.</div></div>
+        <div class="timeline-item"><div class="date">2023 — 2025</div><div class="role">Diploma, Full-Stack — Reboot Coding Institute</div><div class="desc">Deep systems, algorithms, cloud. Specializing in DevOps and mobile.</div></div>
+        <div class="timeline-item"><div class="date">2025</div><div class="role">Professional Scrum Master</div><div class="desc">Agile confirmed. Subject can also run your sprint.</div></div>
+      `
+    },
+    projects: {
+      case: 'CASE FILE #002 — EVIDENCE LOG',
+      title: 'Cases Closed',
+      html: `
+        <p>A partial inventory of the subject's recent work. Additional cases remain in cold storage.</p>
+        <div class="project-card"><div class="name">Foremarket</div><div>Top Swedish golf second-hand marketplace. Live. Expanding into the Nordics and Americas.</div><div class="tags"><span class="tag">React Native</span><span class="tag">Expo</span><span class="tag">Stripe</span><span class="tag">BankID</span><span class="tag">AWS</span></div></div>
+        <div class="project-card"><div class="name">Cryptic Portal</div><div>Immersive 3D escape room game. Unity, C#, and an LLM-powered in-game guide.</div><div class="tags"><span class="tag">Unity</span><span class="tag">C#</span><span class="tag">Blender</span><span class="tag">LLM</span></div></div>
+        <div class="project-card"><div class="name">Bevy Guide</div><div>Step-by-step documentation and deployed site for the Bevy game engine (Rust).</div><div class="tags"><span class="tag">Next.js</span><span class="tag">TypeScript</span><span class="tag">Rust</span></div></div>
+        <div class="project-card"><div class="name">Maze Wars</div><div>Modern client/server reimagining of the original Maze Wars in Rust.</div><div class="tags"><span class="tag">Rust</span><span class="tag">SDL2</span></div></div>
+        <div class="project-card"><div class="name">W-get Replica</div><div>A user-friendly recreation of the wget command with a GUI.</div><div class="tags"><span class="tag">Go</span><span class="tag">Gin</span></div></div>
+        <div class="project-card"><div class="name">Raincode Websites</div><div>Company websites for Raincode (Bahrain & Sweden).</div><div class="tags"><span class="tag">WordPress</span><span class="tag">PHP</span><span class="tag">JS</span></div></div>
+      `
+    },
+    speaking: {
+      case: 'CASE FILE #003 — WITNESS TESTIMONY',
+      title: 'The Voice',
+      html: `
+        <p>The subject has been repeatedly observed on stage — hosting hackathons, leading workshops, and coaching youth on the art of persuasion.</p>
+        <h3>Confirmed Appearances</h3>
+        <div class="timeline-item"><div class="role">Dream Big Bahrain — "Speak Up"</div><div class="desc">Live coaching on reading the room, adapting tone, communicating with intention.</div></div>
+        <div class="timeline-item"><div class="role">Zain Bahrain — AI Hackathon Facilitator</div><div class="desc">Designed sprints and kept teams moving while they built AI solutions.</div></div>
+        <div class="timeline-item"><div class="role">Bahrain Polytechnic — Agile Workshop</div><div class="desc">Returned to alma mater to make Agile feel practical instead of theoretical.</div></div>
+        <div class="timeline-item"><div class="role">Reboot × Polytechnic — Build Hackathon MC</div><div class="desc">Kept first-time hackers motivated and the room alive.</div></div>
+      `
+    },
+    mentoring: {
+      case: 'CASE FILE #004 — KNOWN ASSOCIATES',
+      title: 'Tech Mentor',
+      html: `
+        <p>In her current capacity, the subject teaches other engineers how to build cool stuff — mostly in the mobile space — while continuing to ship her own.</p>
+        <p>Students benefit from the double-threat: someone who has recently solved the problems they are solving, and who is <em>still</em> solving them in production.</p>
+        <h3>What that looks like</h3>
+        <p>→ React Native architecture from first principles<br />→ Expo, deployments, app store lifecycles<br />→ Agile / Scrum coaching for teams new to it<br />→ Career mentorship for devs leveling up</p>
+      `
+    },
+    contact: {
+      case: 'CASE FILE #005 — REACH OUT',
+      title: 'Open a Channel',
+      html: `
+        <p>The subject is reachable. No disguises required.</p>
+        <ul class="contact-list">
+          <li><strong>EMAIL</strong><span>nooraqasimwork@gmail.com</span></li>
+          <li><strong>PHONE</strong><span>+973 3808 4876</span></li>
+          <li><strong>LOCATION</strong><span>Manama, Bahrain</span></li>
+          <li><strong>GITHUB</strong><span>@NooraWael</span></li>
+          <li><strong>LINKEDIN</strong><span>/in/nooraqasim</span></li>
+        </ul>
+        <h3>For</h3>
+        <p>→ Collaborating on cool mobile builds<br />→ Speaking engagements / hackathon MC<br />→ Mentorship inquiries<br />→ Mystery-solving (serious inquiries only)</p>
+      `
+    },
+    rubiks: {
+      case: 'CASE FILE #006 — UNUSUAL TALENTS',
+      title: 'The Cube',
+      html: `
+        <p>Subject can reportedly solve a 3×3 Rubik's cube very quickly. This is not directly relevant to the investigation but remains on file because it is, frankly, suspicious.</p>
+        <p>Pattern recognition, sequential problem-solving under constraint, and comfort with state spaces — skills that <em>do</em> happen to show up elsewhere in the subject's work.</p>
+        <p style="margin-top: 20px; font-family: 'Caveat', cursive; font-size: 1.3rem; color: #8b1a1a;">Coincidence? Probably not.</p>
+      `
+    }
+  };
+
+  const intro = document.getElementById('intro');
+  intro.addEventListener('click', () => intro.classList.add('hidden'));
+
+  const modal = document.getElementById('modal');
+  const modalContent = document.getElementById('modal-content');
+  const modalClose = document.getElementById('modal-close');
+
+  function openSection(key) {
+    const section = sections[key];
+    if (!section) return;
+    modalContent.innerHTML = `<h2>${section.title}</h2><div class="case-no">${section.case}</div>${section.html}`;
+    modal.classList.add('open');
+    modal.scrollTop = 0;
+  }
+  function closeModal() { modal.classList.remove('open'); }
+
+  document.querySelectorAll('[data-section]').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openSection(el.dataset.section);
+    });
+  });
+  modalClose.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+
+  document.addEventListener('mousemove', (e) => {
+    const x = (e.clientX / window.innerWidth - 0.5) * 4;
+    const y = (e.clientY / window.innerHeight - 0.5) * 3;
+    const yarn = document.querySelector('.yarn-svg');
+    if (yarn) yarn.style.transform = `translate(${x}px, ${y}px)`;
+  });
+</script>
+</body>
+</html>
