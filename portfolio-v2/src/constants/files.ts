@@ -1,6 +1,14 @@
 import { tokens } from './tokens';
 
-export type FileSlug = 'about' | 'projects' | 'speaking' | 'mentor' | 'contact' | 'rubiks' | 'minesweeper';
+export type FileSlug =
+  | 'about'
+  | 'projects'
+  | 'speaking'
+  | 'mentor'
+  | 'contact'
+  | 'rubiks'
+  | 'games'
+  | 'archive';
 
 export interface FileEntry {
   slug: FileSlug;
@@ -31,7 +39,7 @@ export const FILES: FileEntry[] = [
   {
     slug: 'projects',
     number: 'FILE 02 / EXHIBIT A',
-    label: 'PROJECTS × 06',
+    label: 'PROJECTS',
     subtitle: 'CASES CLOSED',
     color: tokens.colors.accentRed,
     scenePath: '/files/projects',
@@ -89,13 +97,25 @@ export const FILES: FileEntry[] = [
     evidenceRotation: -0.05,
   },
   {
-    slug: 'minesweeper',
+    slug: 'games',
     number: 'FILE 07',
-    label: 'MINESWEEPER',
-    subtitle: 'RANDOM BOARD',
+    label: 'GAMES',
+    subtitle: 'PLAYABLE FILES',
     color: tokens.colors.accentGreen,
-    scenePath: '/files/minesweeper',
-    sceneTitle: 'Minefield',
+    scenePath: '/files/games',
+    sceneTitle: 'Game Library',
+    transitionDuration: 1200,
+    evidencePosition: [0, -0.68, 0.04],
+    evidenceRotation: 0,
+  },
+  {
+    slug: 'archive',
+    number: 'FILE 08',
+    label: 'NEOBRUTALISMVERSION',
+    subtitle: 'ARCHIVED BUILD',
+    color: tokens.colors.accentBlue,
+    scenePath: '/files/archive',
+    sceneTitle: 'Archive',
     transitionDuration: 1200,
     evidencePosition: [0, -0.68, 0.04],
     evidenceRotation: 0,

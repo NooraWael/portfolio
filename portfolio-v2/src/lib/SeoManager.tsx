@@ -7,7 +7,7 @@ const OG_IMAGE = `${SITE_URL}/og-noora-qasim.png`;
 const DEFAULT_SEO = {
   title: 'Noora Qasim | Software Engineer, Tech Mentor & Mobile Developer',
   description:
-    'The portfolio of Noora Qasim, a Manama-based software engineer and tech mentor building mobile apps, developer tools, hackathons, and education systems.',
+    'The portfolio of Noora Qasim, a software engineer and tech mentor building full-stack systems, mobile apps, developer tools, hackathons, and education platforms.',
   path: '/',
 };
 
@@ -16,7 +16,7 @@ const ROUTE_SEO: Record<string, typeof DEFAULT_SEO> = {
   '/files/about': {
     title: 'Who Is She? | Noora Qasim',
     description:
-      'Meet Noora Qasim: software engineer, mobile developer, mentor, builder, and Manama-based creative technologist.',
+      'Meet Noora Qasim: software engineer, mobile developer, mentor, builder, and creative technologist.',
     path: '/files/about',
   },
   '/files/projects': {
@@ -93,11 +93,6 @@ function upsertStructuredData(url: string) {
     image: OG_IMAGE,
     email: 'mailto:nooraqasimwork@gmail.com',
     jobTitle: ['Software Engineer', 'Tech Mentor', 'Mobile Developer'],
-    address: {
-      '@type': 'PostalAddress',
-      addressLocality: 'Manama',
-      addressCountry: 'BH',
-    },
     worksFor: {
       '@type': 'Organization',
       name: 'Reboot Coding Institute',

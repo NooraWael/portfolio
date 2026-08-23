@@ -6,14 +6,17 @@ import {
   type CSSProperties,
   type FormEvent,
   type KeyboardEvent as ReactKeyboardEvent,
+  type MouseEvent as ReactMouseEvent,
   type PointerEvent,
 } from 'react';
 import {
+  Archive,
   BatteryFull,
   BookOpenText,
   Bomb,
   BriefcaseBusiness,
   Calculator,
+  Gamepad2,
   GraduationCap,
   Mail,
   Mic2,
@@ -52,7 +55,7 @@ interface DragState {
 }
 
 interface OverlayDragState {
-  target: 'terminal' | 'note' | 'calculator';
+  target: 'terminal' | 'note' | 'calculator' | 'backgroundPicker';
   startX: number;
   startY: number;
   origin: Point;
@@ -67,6 +70,10 @@ interface TerminalLine {
 
 type MinesweeperDifficulty = 'easy' | 'medium' | 'hard';
 type MinesweeperStatus = 'ready' | 'playing' | 'won' | 'lost';
+type GameSlug = 'minesweeper' | 'twenty48' | 'typing';
+type Twenty48Direction = 'up' | 'down' | 'left' | 'right';
+type Twenty48Status = 'playing' | 'won' | 'lost';
+type WallpaperSlug = 'valley' | 'room' | 'cabin' | 'rooftop' | 'desert' | 'stargazing';
 
 interface MinesweeperCell {
   id: number;
@@ -81,6 +88,11 @@ interface MinesweeperConfig {
   rows: number;
   cols: number;
   mines: number;
+}
+
+interface DesktopContextMenuState {
+  x: number;
+  y: number;
 }
 
 const folderMeta: Record<
@@ -98,7 +110,8 @@ const folderMeta: Record<
   mentor: { icon: GraduationCap, x: 88, y: 24, tone: 'green' },
   contact: { icon: Mail, x: 91, y: 49, tone: 'black' },
   rubiks: { icon: Puzzle, x: 86, y: 73, tone: 'pink' },
-  minesweeper: { icon: Bomb, x: 10, y: 71, tone: 'green' },
+  games: { icon: Gamepad2, x: 10, y: 71, tone: 'green' },
+  archive: { icon: Archive, x: 8, y: 87, tone: 'blue' },
 };
 
 const windowTitles: Record<FileSlug, string> = {
@@ -108,7 +121,8 @@ const windowTitles: Record<FileSlug, string> = {
   mentor: 'Mentor',
   contact: 'Contact',
   rubiks: 'Rubik\'s',
-  minesweeper: 'Minesweeper',
+  games: 'Games',
+  archive: 'neobrutalismversion',
 };
 
 const education = [
@@ -310,6 +324,95 @@ const minesweeperConfigs: Record<MinesweeperDifficulty, MinesweeperConfig> = {
   hard: { label: 'Hard', rows: 12, cols: 16, mines: 36 },
 };
 
+const gameTitles: Record<GameSlug, string> = {
+  minesweeper: 'Minesweeper',
+  twenty48: '2048',
+  typing: 'Typing Test',
+};
+
+const games: Array<{ slug: GameSlug; title: string; icon: LucideIcon; tone: string }> = [
+  { slug: 'minesweeper', title: 'Minesweeper', icon: Bomb, tone: 'green' },
+  { slug: 'twenty48', title: '2048', icon: Calculator, tone: 'yellow' },
+  { slug: 'typing', title: 'Typing Test', icon: Terminal, tone: 'blue' },
+];
+
+const typingPrompts = [
+  'ship useful software and make the path easier for the next builder',
+  'debug the system before blaming the user',
+  'small teams move faster when the feedback loop is clear',
+  'explain the system find the failure ship the fix',
+  'full stack work is mostly making messy ideas usable from end to end',
+  'build the dashboard wire the api clean the data and test the weird path',
+  'good mentorship turns panic into a repeatable debugging process',
+  'read the error message slowly then inspect the state that created it',
+  'production is where small assumptions become very loud bugs',
+  'the best feature is the one people can actually understand and use',
+  'start with the user flow then make the code serve that flow',
+  'a clean system is easier to teach easier to debug and easier to extend',
+  'every hackathon team needs scope control a working demo and calm commits',
+  'design the happy path then spend real time on the edge cases',
+  'mobile apps feel simple only when the invisible systems are solid',
+  'backend work is naming the data correctly and defending every boundary',
+  'ship the smallest useful version then listen carefully to what breaks',
+  'mentor the person in front of you not the imaginary perfect student',
+  'good documentation saves future you from becoming tech support',
+  'a bug report is just a story with missing evidence',
+  'make the invisible state visible and half the mystery disappears',
+  'fast builders are usually just good at cutting scope without cutting quality',
+  'the terminal knows what happened if you ask the right question',
+  'interfaces should feel obvious after the hard thinking is done',
+  'clear feedback beats clever UI every time',
+  'write the code like someone tired will debug it at midnight',
+  'systems work is turning scattered requirements into dependable behavior',
+  'the demo only works when the boring parts are working too',
+  'teach the concept then teach the failure mode then let them build',
+  'good engineers leave fewer mysteries for the next person',
+  'every project needs a clear owner a clear path and a clear done',
+  'the fastest fix is usually the one that starts with reproduction',
+  'software gets better when people can explain what it is doing',
+  'keep the flow tight the copy clear and the states honest',
+];
+
+const desktopWallpapers: Array<{ slug: WallpaperSlug; label: string; src: string }> = [
+  { slug: 'valley', label: 'Valley', src: '/papercraft-desktop-wallpaper.png' },
+  { slug: 'room', label: 'Room', src: '/wallpaper-room.png' },
+  { slug: 'cabin', label: 'Cabin', src: '/wallpaper-cabin.png' },
+  { slug: 'rooftop', label: 'Rooftop', src: '/wallpaper-rooftop.png' },
+  { slug: 'desert', label: 'Desert', src: '/wallpaper-desert.png' },
+  { slug: 'stargazing', label: 'Stars', src: '/wallpaper-stargazing.png' },
+];
+
+function getInitialWallpaper(): WallpaperSlug {
+  if (typeof window === 'undefined') {
+    return 'valley';
+  }
+
+  const saved = window.localStorage.getItem('nq-wallpaper') as WallpaperSlug | null;
+  return saved && desktopWallpapers.some((wallpaper) => wallpaper.slug === saved) ? saved : 'valley';
+}
+
+function getDefaultFolderPositions() {
+  return Object.fromEntries(
+    FILES.map((file) => [file.slug, { x: folderMeta[file.slug].x, y: folderMeta[file.slug].y }]),
+  ) as Record<FileSlug, Point>;
+}
+
+function createSortedFolderPositions(files: FileEntry[]) {
+  const columns = [
+    { x: 7, startY: 18 },
+    { x: 88, startY: 24 },
+  ];
+  const next = getDefaultFolderPositions();
+
+  files.forEach((file, index) => {
+    const column = index < Math.ceil(files.length / 2) ? columns[0] : columns[1];
+    const row = index < Math.ceil(files.length / 2) ? index : index - Math.ceil(files.length / 2);
+    next[file.slug] = { x: column.x, y: column.startY + row * 13.4 };
+  });
+
+  return next;
+}
+
 function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
 }
@@ -413,6 +516,103 @@ function revealMinesweeperCell(board: MinesweeperCell[], index: number, config: 
   return next;
 }
 
+function createEmptyTwenty48Board() {
+  return Array.from({ length: 16 }, () => 0);
+}
+
+function addTwenty48Tile(board: number[]) {
+  const emptyIndexes = board
+    .map((value, index) => (value === 0 ? index : -1))
+    .filter((index) => index !== -1);
+
+  if (!emptyIndexes.length) {
+    return board;
+  }
+
+  const next = [...board];
+  const randomIndex = emptyIndexes[Math.floor(Math.random() * emptyIndexes.length)];
+  next[randomIndex] = Math.random() > 0.9 ? 4 : 2;
+  return next;
+}
+
+function createTwenty48Board() {
+  return addTwenty48Tile(addTwenty48Tile(createEmptyTwenty48Board()));
+}
+
+function slideTwenty48Line(line: number[]) {
+  const values = line.filter(Boolean);
+  const merged: number[] = [];
+  let score = 0;
+
+  for (let index = 0; index < values.length; index += 1) {
+    if (values[index] === values[index + 1]) {
+      const nextValue = values[index] * 2;
+      merged.push(nextValue);
+      score += nextValue;
+      index += 1;
+    } else {
+      merged.push(values[index]);
+    }
+  }
+
+  while (merged.length < 4) {
+    merged.push(0);
+  }
+
+  return {
+    line: merged,
+    score,
+    changed: merged.some((value, index) => value !== line[index]),
+  };
+}
+
+function moveTwenty48Board(board: number[], direction: Twenty48Direction) {
+  const next = createEmptyTwenty48Board();
+  let score = 0;
+  let changed = false;
+
+  for (let lineIndex = 0; lineIndex < 4; lineIndex += 1) {
+    const indexes =
+      direction === 'left' || direction === 'right'
+        ? Array.from({ length: 4 }, (_, index) => lineIndex * 4 + index)
+        : Array.from({ length: 4 }, (_, index) => index * 4 + lineIndex);
+    const orderedIndexes = direction === 'right' || direction === 'down' ? [...indexes].reverse() : indexes;
+    const line = orderedIndexes.map((index) => board[index]);
+    const result = slideTwenty48Line(line);
+
+    orderedIndexes.forEach((index, valueIndex) => {
+      next[index] = result.line[valueIndex];
+    });
+
+    score += result.score;
+    changed = changed || result.changed;
+  }
+
+  return { board: next, score, changed };
+}
+
+function canMoveTwenty48(board: number[]) {
+  if (board.some((value) => value === 0)) {
+    return true;
+  }
+
+  return board.some((value, index) => {
+    const row = Math.floor(index / 4);
+    const col = index % 4;
+    const right = col < 3 ? board[index + 1] : null;
+    const down = row < 3 ? board[index + 4] : null;
+    return value === right || value === down;
+  });
+}
+
+function getTwenty48ClassName(value: number) {
+  if (value >= 2048) {
+    return 'v-2048';
+  }
+
+  return value ? `v-${value}` : 'empty';
+}
+
 function getInitialTerminalPosition(): Point {
   if (typeof window === 'undefined') {
     return { x: 128, y: 560 };
@@ -443,6 +643,17 @@ function getInitialCalculatorPosition(): Point {
   };
 }
 
+function getInitialBackgroundPickerPosition(): Point {
+  if (typeof window === 'undefined') {
+    return { x: 440, y: 74 };
+  }
+
+  return {
+    x: Math.max(16, Math.min(window.innerWidth - 584, window.innerWidth / 2 - 280)),
+    y: 74,
+  };
+}
+
 function isCompactLayout() {
   return window.matchMedia('(max-width: 940px)').matches;
 }
@@ -456,16 +667,6 @@ function useClock() {
   }, []);
 
   return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
-
-function WindowTrafficLights() {
-  return (
-    <div className="window-lights" aria-hidden="true">
-      <span className="light red" />
-      <span className="light yellow" />
-      <span className="light green" />
-    </div>
-  );
 }
 
 function DesktopFolder({
@@ -487,7 +688,7 @@ function DesktopFolder({
     >
       <span className="folder-tab" />
       <span className="folder-body">
-        <Icon size={28} strokeWidth={2.35} />
+        <Icon size={21} strokeWidth={2.35} />
       </span>
       <span className="folder-label">{file.label}</span>
     </button>
@@ -907,14 +1108,400 @@ function MinesweeperContent() {
   );
 }
 
+function Twenty48Content() {
+  const [board, setBoard] = useState(() => createTwenty48Board());
+  const [score, setScore] = useState(0);
+  const [status, setStatus] = useState<Twenty48Status>('playing');
+
+  const resetGame = () => {
+    setBoard(createTwenty48Board());
+    setScore(0);
+    setStatus('playing');
+  };
+
+  const move = (direction: Twenty48Direction) => {
+    if (status !== 'playing') {
+      return;
+    }
+
+    const result = moveTwenty48Board(board, direction);
+    if (!result.changed) {
+      return;
+    }
+
+    const nextBoard = addTwenty48Tile(result.board);
+    setBoard(nextBoard);
+    setScore((current) => current + result.score);
+
+    if (nextBoard.includes(2048)) {
+      setStatus('won');
+      return;
+    }
+
+    if (!canMoveTwenty48(nextBoard)) {
+      setStatus('lost');
+    }
+  };
+
+  const handleKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    const keyMap: Partial<Record<string, Twenty48Direction>> = {
+      ArrowUp: 'up',
+      w: 'up',
+      W: 'up',
+      ArrowDown: 'down',
+      s: 'down',
+      S: 'down',
+      ArrowLeft: 'left',
+      a: 'left',
+      A: 'left',
+      ArrowRight: 'right',
+      d: 'right',
+      D: 'right',
+    };
+    const direction = keyMap[event.key];
+
+    if (direction) {
+      event.preventDefault();
+      move(direction);
+    }
+  };
+
+  return (
+    <section className="twenty48-panel" aria-label="2048 game">
+      <div className="twenty48-header">
+        <div>
+          <p className="eyebrow">Merge tiles / reach 2048</p>
+          <h2>2048</h2>
+        </div>
+        <div className="twenty48-score">
+          <span>Score</span>
+          <strong>{score}</strong>
+        </div>
+      </div>
+
+      <div className="twenty48-shell">
+        <div className="twenty48-board" tabIndex={0} onKeyDown={handleKeyDown} aria-label="2048 board">
+          {board.map((value, index) => (
+            <span className={`twenty48-cell ${getTwenty48ClassName(value)}`} key={`${index}-${value}`}>
+              {value || ''}
+            </span>
+          ))}
+        </div>
+
+        {status !== 'playing' ? (
+          <div className={`twenty48-end ${status}`} aria-live="assertive">
+            <strong>{status === 'won' ? '2048 reached' : 'No moves left'}</strong>
+            <button type="button" onClick={resetGame}>
+              New game
+            </button>
+          </div>
+        ) : null}
+      </div>
+
+      <div className="twenty48-controls" aria-label="2048 controls">
+        <button type="button" onClick={() => move('up')}>
+          Up
+        </button>
+        <button type="button" onClick={() => move('left')}>
+          Left
+        </button>
+        <button type="button" onClick={() => move('down')}>
+          Down
+        </button>
+        <button type="button" onClick={() => move('right')}>
+          Right
+        </button>
+      </div>
+
+      <p className="game-note">Use arrow keys, WASD, or the buttons.</p>
+    </section>
+  );
+}
+
+function TypingTestContent() {
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const [prompt, setPrompt] = useState(() => typingPrompts[Math.floor(Math.random() * typingPrompts.length)]);
+  const [value, setValue] = useState('');
+  const [startedAt, setStartedAt] = useState<number | null>(null);
+  const [finishedAt, setFinishedAt] = useState<number | null>(null);
+  const cursorIndex = Math.min(value.length, prompt.length);
+
+  const stats = useMemo(() => {
+    const correctCharacters = value.split('').filter((character, index) => character === prompt[index]).length;
+    const elapsedMs = (finishedAt ?? Date.now()) - (startedAt ?? Date.now());
+    const minutes = Math.max(elapsedMs / 60_000, 1 / 60);
+    const wpm = Math.round(correctCharacters / 5 / minutes);
+    const accuracy = value.length ? Math.round((correctCharacters / value.length) * 100) : 100;
+    const progress = Math.min(Math.round((value.length / prompt.length) * 100), 100);
+
+    return { accuracy, progress, wpm };
+  }, [finishedAt, prompt, startedAt, value]);
+
+  const resetTest = () => {
+    setPrompt(typingPrompts[Math.floor(Math.random() * typingPrompts.length)]);
+    setValue('');
+    setStartedAt(null);
+    setFinishedAt(null);
+    window.setTimeout(() => inputRef.current?.focus(), 0);
+  };
+
+  const updateValue = (nextValue: string) => {
+    if (finishedAt) {
+      return;
+    }
+
+    const normalizedValue = nextValue.replace(/\n/g, ' ').slice(0, prompt.length);
+
+    if (!startedAt && normalizedValue.length) {
+      setStartedAt(Date.now());
+    }
+
+    setValue(normalizedValue);
+
+    if (normalizedValue === prompt) {
+      setFinishedAt(Date.now());
+    }
+  };
+
+  const renderTypingPrompt = () => {
+    let characterIndex = 0;
+
+    return prompt
+      .split(/(\s+)/)
+      .filter(Boolean)
+      .map((token, tokenIndex) => {
+        const tokenStart = characterIndex;
+        characterIndex += token.length;
+
+        return (
+          <span className={/^\s+$/.test(token) ? 'typing-space-run' : 'typing-word'} key={`${token}-${tokenIndex}`}>
+            {token.split('').map((character, offset) => {
+              const index = tokenStart + offset;
+              const typedCharacter = value[index];
+              const state =
+                typedCharacter === undefined ? 'pending' : typedCharacter === character ? 'correct' : 'wrong';
+
+              return (
+                <span className="typing-char-wrap" key={`${character}-${index}`}>
+                  {index === cursorIndex ? <span className="typing-cursor" /> : null}
+                  <span className={`typing-char ${state}`}>{character === ' ' ? '\u00A0' : character}</span>
+                </span>
+              );
+            })}
+          </span>
+        );
+      });
+  };
+
+  return (
+    <section className="typing-panel" aria-label="Typing test">
+      <div className="typing-header">
+        <div>
+          <p className="eyebrow">Accuracy / speed drill</p>
+          <h2>Typing Test</h2>
+        </div>
+        <button type="button" onClick={resetTest}>
+          New prompt
+        </button>
+      </div>
+
+      <div
+        className={`typing-console ${finishedAt ? 'complete' : ''}`}
+        onClick={() => inputRef.current?.focus()}
+        role="group"
+        aria-label="Typing prompt"
+      >
+        <div className="typing-prompt" aria-hidden="true">
+          {renderTypingPrompt()}
+          {cursorIndex === prompt.length ? <span className="typing-cursor end" /> : null}
+        </div>
+        <textarea
+          ref={inputRef}
+          className="typing-capture"
+          value={value}
+          onChange={(event) => updateValue(event.target.value)}
+          onKeyDown={(event) => {
+            if (event.key === 'Tab') {
+              event.preventDefault();
+            }
+          }}
+          spellCheck={false}
+          autoCapitalize="none"
+          autoComplete="off"
+          autoCorrect="off"
+          aria-label="Typing test input"
+        />
+      </div>
+
+      <div className="typing-stats">
+        <span>
+          <strong>{stats.wpm}</strong>
+          WPM
+        </span>
+        <span>
+          <strong>{stats.accuracy}%</strong>
+          Accuracy
+        </span>
+        <span>
+          <strong>{stats.progress}%</strong>
+          Done
+        </span>
+        <span className={finishedAt ? 'complete' : ''}>
+          <strong>{finishedAt ? 'Clear' : 'Live'}</strong>
+          Status
+        </span>
+      </div>
+    </section>
+  );
+}
+
+function GamesContent() {
+  const [activeGame, setActiveGame] = useState<GameSlug | null>(null);
+
+  if (activeGame) {
+    return (
+      <section className="games-panel game-running" aria-label={gameTitles[activeGame]}>
+        <div className="games-toolbar">
+          <button type="button" onClick={() => setActiveGame(null)}>
+            Back to Games
+          </button>
+          <span>Games / {gameTitles[activeGame]}</span>
+        </div>
+        {activeGame === 'minesweeper' ? <MinesweeperContent /> : null}
+        {activeGame === 'twenty48' ? <Twenty48Content /> : null}
+        {activeGame === 'typing' ? <TypingTestContent /> : null}
+      </section>
+    );
+  }
+
+  return (
+    <section className="games-panel" aria-label="Games folder">
+      <div className="games-heading">
+        <div>
+          <p className="eyebrow">Finder / playable files</p>
+          <h2>Games</h2>
+        </div>
+        <span>3 games installed</span>
+      </div>
+
+      <div className="games-finder">
+        <div className="games-sidebar" aria-hidden="true">
+          <span className="active">Installed</span>
+          <span>Favorites</span>
+          <span>Archive</span>
+        </div>
+
+        <div className="games-library-wrap">
+          <div className="games-library">
+            {games.map((game) => {
+              const Icon = game.icon;
+
+              return (
+                <button type="button" className="game-tile" onClick={() => setActiveGame(game.slug)} key={game.slug}>
+                  <span className={`game-icon tone-${game.tone}`}>
+                    <Icon size={26} strokeWidth={2.4} />
+                  </span>
+                  <strong>{game.title}</strong>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function BackgroundPickerWindow({
+  selected,
+  onSelect,
+  onClose,
+  position,
+  onDragStart,
+}: {
+  selected: WallpaperSlug;
+  onSelect: (wallpaper: WallpaperSlug) => void;
+  onClose: () => void;
+  position: Point;
+  onDragStart: (event: PointerEvent<HTMLElement>, target: 'backgroundPicker') => void;
+}) {
+  return (
+    <section
+      className="background-picker-window"
+      style={{ left: position.x, top: position.y }}
+      aria-label="Change background"
+    >
+      <div className="background-picker-titlebar" onPointerDown={(event) => onDragStart(event, 'backgroundPicker')}>
+        <div className="window-lights">
+          <button
+            type="button"
+            className="light red"
+            onPointerDown={(event) => event.stopPropagation()}
+            onClick={onClose}
+            aria-label="Close backgrounds"
+          />
+          <span className="light yellow" aria-hidden="true" />
+          <span className="light green" aria-hidden="true" />
+        </div>
+        <div className="window-path">
+          <Archive size={15} strokeWidth={2.5} />
+          <span>Users / Backgrounds</span>
+        </div>
+      </div>
+
+      <div className="background-picker-content">
+        <div className="wallpaper-grid">
+          {desktopWallpapers.map((wallpaper) => (
+            <button
+              type="button"
+              className={selected === wallpaper.slug ? 'active' : ''}
+              onClick={() => onSelect(wallpaper.slug)}
+              key={wallpaper.slug}
+              aria-label={`Use ${wallpaper.label} background`}
+            >
+              <img src={wallpaper.src} alt="" />
+            </button>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function ArchiveContent() {
+  return (
+    <section className="archive-panel" aria-label="Archived neobrutalist version">
+      <div className="archive-heading">
+        <div>
+          <p className="eyebrow">Archive / previous build</p>
+          <h2>Neobrutalism Version</h2>
+        </div>
+        <a href="/archive/neobrutalismversion/index.html" target="_blank" rel="noreferrer">
+          Open full archive
+        </a>
+      </div>
+
+      <div className="archive-frame-shell">
+        <iframe
+          src="/archive/neobrutalismversion/index.html"
+          title="Archived neobrutalist portfolio version"
+          loading="lazy"
+        />
+      </div>
+    </section>
+  );
+}
+
 function DesktopWindow({
   file,
   icon: Icon,
   tone,
+  onClose,
 }: {
   file: FileEntry;
   icon: LucideIcon;
   tone: string;
+  onClose: () => void;
 }) {
   const title = windowTitles[file.slug];
 
@@ -924,7 +1511,11 @@ function DesktopWindow({
       aria-label={`${title} window`}
     >
       <div className="window-titlebar">
-        <WindowTrafficLights />
+        <div className="window-lights">
+          <button type="button" className="light red" onClick={onClose} aria-label={`Close ${title} window`} />
+          <span className="light yellow" aria-hidden="true" />
+          <span className="light green" aria-hidden="true" />
+        </div>
         <div className="window-path">
           <Icon size={15} strokeWidth={2.5} />
           <span>Users / {title}</span>
@@ -938,7 +1529,8 @@ function DesktopWindow({
         {file.slug === 'mentor' ? <MentorContent /> : null}
         {file.slug === 'contact' ? <ContactContent /> : null}
         {file.slug === 'rubiks' ? <RubiksContent /> : null}
-        {file.slug === 'minesweeper' ? <MinesweeperContent /> : null}
+        {file.slug === 'games' ? <GamesContent /> : null}
+        {file.slug === 'archive' ? <ArchiveContent /> : null}
       </div>
     </section>
   );
@@ -1081,17 +1673,22 @@ export function NeobrutalistHub() {
   const [calculatorPosition, setCalculatorPosition] = useState<Point>(getInitialCalculatorPosition);
   const [owlNoteOpen, setOwlNoteOpen] = useState(false);
   const [owlNotePosition, setOwlNotePosition] = useState<Point>(getInitialNotePosition);
-  const [folderPositions, setFolderPositions] = useState<Record<FileSlug, Point>>(() => {
-    return Object.fromEntries(
-      FILES.map((file) => [file.slug, { x: folderMeta[file.slug].x, y: folderMeta[file.slug].y }]),
-    ) as Record<FileSlug, Point>;
-  });
+  const [archiveMenuOpen, setArchiveMenuOpen] = useState(false);
+  const [nqMenuOpen, setNqMenuOpen] = useState(false);
+  const [backgroundPickerOpen, setBackgroundPickerOpen] = useState(false);
+  const [backgroundPickerPosition, setBackgroundPickerPosition] = useState<Point>(getInitialBackgroundPickerPosition);
+  const [selectedWallpaper, setSelectedWallpaper] = useState<WallpaperSlug>(getInitialWallpaper);
+  const [isMainWindowOpen, setIsMainWindowOpen] = useState(true);
+  const [contextMenu, setContextMenu] = useState<DesktopContextMenuState | null>(null);
+  const [folderPositions, setFolderPositions] = useState<Record<FileSlug, Point>>(getDefaultFolderPositions);
   const [activeSlug, setActiveSlug] = useState<FileSlug>('about');
 
   const filesBySlug = useMemo(
     () => Object.fromEntries(FILES.map((file) => [file.slug, file])) as Record<FileSlug, FileEntry>,
     [],
   );
+  const desktopFiles = useMemo(() => FILES.filter((file) => file.slug !== 'archive'), []);
+  const activeWallpaper = desktopWallpapers.find((wallpaper) => wallpaper.slug === selectedWallpaper) ?? desktopWallpapers[0];
 
   const openFile = (file: FileEntry) => {
     if (suppressClickRef.current) {
@@ -1099,7 +1696,9 @@ export function NeobrutalistHub() {
       return;
     }
 
+    setContextMenu(null);
     setActiveSlug(file.slug);
+    setIsMainWindowOpen(true);
 
     if (isCompactLayout()) {
       const resetScroll = () => {
@@ -1110,6 +1709,60 @@ export function NeobrutalistHub() {
       window.requestAnimationFrame(resetScroll);
       window.setTimeout(resetScroll, 80);
     }
+  };
+
+  const selectWallpaper = (wallpaper: WallpaperSlug) => {
+    setContextMenu(null);
+    setSelectedWallpaper(wallpaper);
+    window.localStorage.setItem('nq-wallpaper', wallpaper);
+  };
+
+  const arrangeFoldersByName = () => {
+    const sortedFiles = [...desktopFiles].sort((left, right) => left.label.localeCompare(right.label));
+    setFolderPositions(createSortedFolderPositions(sortedFiles));
+    setContextMenu(null);
+  };
+
+  const arrangeFoldersByKind = () => {
+    const kindOrder: Record<string, number> = {
+      blue: 1,
+      yellow: 2,
+      orange: 3,
+      green: 4,
+      black: 5,
+      pink: 6,
+    };
+    const sortedFiles = [...desktopFiles].sort((left, right) => {
+      const leftTone = folderMeta[left.slug].tone;
+      const rightTone = folderMeta[right.slug].tone;
+      return kindOrder[leftTone] - kindOrder[rightTone] || left.label.localeCompare(right.label);
+    });
+    setFolderPositions(createSortedFolderPositions(sortedFiles));
+    setContextMenu(null);
+  };
+
+  const resetFolderLayout = () => {
+    setFolderPositions(getDefaultFolderPositions());
+    setContextMenu(null);
+  };
+
+  const openDesktopContextMenu = (event: ReactMouseEvent<HTMLElement>) => {
+    if (isCompactLayout()) {
+      return;
+    }
+
+    event.preventDefault();
+    const bounds = stageRef.current?.getBoundingClientRect();
+    if (!bounds) {
+      return;
+    }
+
+    setArchiveMenuOpen(false);
+    setNqMenuOpen(false);
+    setContextMenu({
+      x: clamp(event.clientX - bounds.left, 12, bounds.width - 230),
+      y: clamp(event.clientY - bounds.top, 12, bounds.height - 220),
+    });
   };
 
   const runTerminalCommand = (event: FormEvent<HTMLFormElement>) => {
@@ -1189,13 +1842,19 @@ export function NeobrutalistHub() {
     });
   };
 
-  const startOverlayDrag = (event: PointerEvent<HTMLElement>, target: 'terminal' | 'note' | 'calculator') => {
+  const startOverlayDrag = (event: PointerEvent<HTMLElement>, target: OverlayDragState['target']) => {
     if (isCompactLayout()) {
       return;
     }
 
     const selector =
-      target === 'terminal' ? '.secret-terminal' : target === 'calculator' ? '.secret-calculator' : '.owl-note';
+      target === 'terminal'
+        ? '.secret-terminal'
+        : target === 'calculator'
+          ? '.secret-calculator'
+          : target === 'backgroundPicker'
+            ? '.background-picker-window'
+            : '.owl-note';
     const element = event.currentTarget.closest(selector);
     const rect = element?.getBoundingClientRect();
     if (!rect) {
@@ -1207,7 +1866,14 @@ export function NeobrutalistHub() {
       target,
       startX: event.clientX,
       startY: event.clientY,
-      origin: target === 'terminal' ? terminalPosition : target === 'calculator' ? calculatorPosition : owlNotePosition,
+      origin:
+        target === 'terminal'
+          ? terminalPosition
+          : target === 'calculator'
+            ? calculatorPosition
+            : target === 'backgroundPicker'
+              ? backgroundPickerPosition
+              : owlNotePosition,
       width: rect.width,
       height: rect.height,
     });
@@ -1243,6 +1909,29 @@ export function NeobrutalistHub() {
   }, []);
 
   useEffect(() => {
+    if (!contextMenu) {
+      return undefined;
+    }
+
+    const closeMenu = () => setContextMenu(null);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        closeMenu();
+      }
+    };
+
+    window.addEventListener('pointerdown', closeMenu);
+    window.addEventListener('resize', closeMenu);
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('pointerdown', closeMenu);
+      window.removeEventListener('resize', closeMenu);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [contextMenu]);
+
+  useEffect(() => {
     if (!overlayDragState) {
       return undefined;
     }
@@ -1263,6 +1952,8 @@ export function NeobrutalistHub() {
         setTerminalPosition({ x, y });
       } else if (overlayDragState.target === 'calculator') {
         setCalculatorPosition({ x, y });
+      } else if (overlayDragState.target === 'backgroundPicker') {
+        setBackgroundPickerPosition({ x, y });
       } else {
         setOwlNotePosition({ x, y });
       }
@@ -1335,7 +2026,11 @@ export function NeobrutalistHub() {
 
   return (
     <div className="hub-page">
-      <div className="desktop-wallpaper" aria-hidden="true" />
+      <div
+        className={`desktop-wallpaper wallpaper-${selectedWallpaper}`}
+        style={{ '--wallpaper-image': `url("${activeWallpaper.src}")` } as CSSProperties}
+        aria-hidden="true"
+      />
 
       {owlNoteOpen ? (
         <aside className="owl-note" style={{ left: owlNotePosition.x, top: owlNotePosition.y }} aria-label="Owl note">
@@ -1393,9 +2088,77 @@ export function NeobrutalistHub() {
 
       <header className="mac-menu">
         <div className="menu-cluster">
-          <strong>NQ</strong>
+          <div className="nq-menu-wrap">
+            <button
+              type="button"
+              className="menu-brand-button"
+              onClick={() => {
+                setNqMenuOpen((current) => !current);
+                setArchiveMenuOpen(false);
+              }}
+              aria-haspopup="menu"
+              aria-expanded={nqMenuOpen}
+            >
+              NQ
+            </button>
+            {nqMenuOpen ? (
+              <div className="nq-menu-popover" role="menu" aria-label="NQ menu">
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setBackgroundPickerOpen(true);
+                    setNqMenuOpen(false);
+                  }}
+                >
+                  <strong>Change Background</strong>
+                  <span>{activeWallpaper.label}</span>
+                </button>
+              </div>
+            ) : null}
+          </div>
           <span>Folders</span>
           <span>Arrange</span>
+          <div className="archive-menu-wrap">
+            <button
+              type="button"
+              className="menu-word-button"
+              onClick={() => {
+                setArchiveMenuOpen((current) => !current);
+                setNqMenuOpen(false);
+              }}
+              aria-haspopup="menu"
+              aria-expanded={archiveMenuOpen}
+            >
+              Archive
+            </button>
+            {archiveMenuOpen ? (
+              <div className="archive-menu-popover" role="menu" aria-label="Archive versions">
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    setActiveSlug('about');
+                    setIsMainWindowOpen(true);
+                    setArchiveMenuOpen(false);
+                  }}
+                >
+                  <strong>Version 2.0</strong>
+                  <span>Current NQ desktop</span>
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  onClick={() => {
+                    window.location.href = '/archive/neobrutalismversion/index.html';
+                  }}
+                >
+                  <strong>Version 1.0</strong>
+                  <span>Neobrutalism Version</span>
+                </button>
+              </div>
+            ) : null}
+          </div>
         </div>
         <div className="menu-cluster right">
           <Search size={15} strokeWidth={2.4} />
@@ -1405,7 +2168,64 @@ export function NeobrutalistHub() {
         </div>
       </header>
 
-      <main ref={stageRef} className="desktop-stage" aria-label="Noora Qasim desktop portfolio">
+      <main
+        ref={stageRef}
+        className="desktop-stage"
+        onContextMenu={openDesktopContextMenu}
+        aria-label="Noora Qasim desktop portfolio"
+      >
+        {contextMenu ? (
+          <div
+            className="desktop-context-menu"
+            style={{ left: contextMenu.x, top: contextMenu.y }}
+            onPointerDown={(event) => event.stopPropagation()}
+            onContextMenu={(event) => event.preventDefault()}
+            role="menu"
+            aria-label="Desktop actions"
+          >
+            <button type="button" role="menuitem" onClick={arrangeFoldersByName}>
+              Sort by Name
+            </button>
+            <button type="button" role="menuitem" onClick={arrangeFoldersByKind}>
+              Sort by Folder Type
+            </button>
+            <button type="button" role="menuitem" onClick={resetFolderLayout}>
+              Reset Layout
+            </button>
+            <span aria-hidden="true" />
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setIsMainWindowOpen((current) => !current);
+                setContextMenu(null);
+              }}
+            >
+              {isMainWindowOpen ? 'Close Main Tab' : 'Reopen Main Tab'}
+            </button>
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => {
+                setBackgroundPickerOpen(true);
+                setContextMenu(null);
+              }}
+            >
+              Change Background
+            </button>
+          </div>
+        ) : null}
+
+        {backgroundPickerOpen ? (
+          <BackgroundPickerWindow
+            selected={selectedWallpaper}
+            onSelect={selectWallpaper}
+            onClose={() => setBackgroundPickerOpen(false)}
+            position={backgroundPickerPosition}
+            onDragStart={startOverlayDrag}
+          />
+        ) : null}
+
         <button
           className="desktop-owl"
           type="button"
@@ -1415,7 +2235,7 @@ export function NeobrutalistHub() {
           <img src="/owl-sitting.png" alt="" />
         </button>
 
-        {FILES.map((file) => {
+        {desktopFiles.map((file) => {
           const meta = folderMeta[file.slug];
           return (
             <DesktopFolder
@@ -1430,11 +2250,14 @@ export function NeobrutalistHub() {
           );
         })}
 
-        <DesktopWindow
-          file={filesBySlug[activeSlug]}
-          icon={folderMeta[activeSlug].icon}
-          tone={folderMeta[activeSlug].tone}
-        />
+        {isMainWindowOpen ? (
+          <DesktopWindow
+            file={filesBySlug[activeSlug]}
+            icon={folderMeta[activeSlug].icon}
+            tone={folderMeta[activeSlug].tone}
+            onClose={() => setIsMainWindowOpen(false)}
+          />
+        ) : null}
       </main>
     </div>
   );
