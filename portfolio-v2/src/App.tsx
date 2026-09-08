@@ -7,27 +7,48 @@ import KineticScene from './components/KineticScene';
 
 const projects = [
   {
-    id: '01', title: 'FOREMARKET', type: 'MOBILE MARKETPLACE', year: '2025 / 2026', color: 'var(--cobalt)', ink: 'var(--cream)',
+    id: '01', title: 'FOREMARKET', type: 'MARKETPLACE PRODUCT', year: '2025 / 2026', color: 'var(--cobalt)', ink: 'var(--cream)',
     role: 'Mobile Team Lead', stack: ['React Native', 'Expo', 'TypeScript', 'Stripe', 'Firebase'],
     body: 'Sweden’s second-hand golf marketplace. I led a three-developer mobile team and shipped production features for a product expanding beyond its original market.',
+    proof: 'A production marketplace built for real inventory, real transactions, and real users.',
+    media: ['/foremarket-home.jpg', '/foremarket-listings.jpg'], mediaAlt: 'Foremarket marketplace website',
     link: 'https://foremarket.se', action: 'VISIT LIVE',
   },
   {
-    id: '02', title: 'CRYPTIC PORTAL', type: '3D ESCAPE ROOM', year: '2024', color: 'var(--orange)', ink: 'var(--cream)',
+    id: '02', title: 'SHAMSAHA', type: 'CRISIS SUPPORT APP', year: 'LIVE', color: 'var(--cream)', ink: 'var(--ink)',
+    role: 'Full Stack Developer', stack: ['React Native', 'Node.js', 'Mobile Systems'],
+    body: 'A mobile support platform built for Shamsaha, connecting women across the Middle East with confidential crisis care and practical support.',
+    proof: 'A React Native mobile experience backed by Node.js, built around clarity, care, and immediate access to support.',
+    media: ['/shamsaha-home.jpg', '/shamsaha-mission.jpg'], mediaAlt: 'Shamsaha support platform website',
+    link: 'https://shamsaha.org', action: 'VISIT SHAMSAHA',
+  },
+  {
+    id: '03', title: 'RAINCODE SITES', type: 'PRODUCTION WEBSITES', year: '2024', color: 'var(--ink)', ink: 'var(--cream)',
+    role: 'Web Development Intern', stack: ['WordPress', 'PHP', 'JavaScript'],
+    body: 'Two production websites created during my Raincode internship for its Bahrain and Sweden presence, with custom templates, theming, and responsive delivery.',
+    proof: 'Two client websites shipped in a four-person team through an Agile delivery process.',
+    media: ['/raincode-home.jpg', '/raincode-detail.jpg'], mediaAlt: 'Raincode technology company website',
+    link: 'https://raincode.tech', action: 'VISIT RAINCODE.TECH', secondaryLink: 'https://raincode.bh', secondaryAction: 'VISIT RAINCODE.BH',
+  },
+  {
+    id: '04', title: 'CRYPTIC PORTAL', type: '3D ESCAPE ROOM', year: '2024', color: 'var(--cobalt)', ink: 'var(--cream)',
     role: 'Senior Project', stack: ['Unity', 'C#', 'LLM', 'Blender'],
     body: 'A cinematic escape-room game with a custom AI guide, full 3D environments, and cryptic puzzles designed as one connected system.',
+    proof: 'A complete game system spanning interaction design, 3D environments, AI, and puzzle logic.',
     link: 'https://dj96u9m908mjo.cloudfront.net/Cryptic.zip', action: 'DOWNLOAD',
   },
   {
-    id: '03', title: 'MAZE WARS', type: 'SYSTEMS GAME', year: '2024', color: 'var(--taupe)', ink: 'var(--ink)',
+    id: '05', title: 'MAZE WARS', type: 'SYSTEMS GAME', year: '2024', color: 'var(--taupe)', ink: 'var(--ink)',
     role: 'Systems Learning Project', stack: ['Rust', 'SDL2', 'Procedural Generation'],
     body: 'A 2D maze battler written from scratch in Rust: game loop, collision system, and procedural maze generation, with no engine.',
+    proof: 'The engine, collision model, game loop, and maze generation were built from the ground up.',
     link: 'https://github.com/NooraWael/maze-wars', action: 'VIEW CODE',
   },
   {
-    id: '04', title: 'BEVY GUIDE', type: 'OPEN SOURCE DOCS', year: '2024', color: 'var(--cream)', ink: 'var(--ink)',
+    id: '06', title: 'BEVY GUIDE', type: 'OPEN SOURCE DOCS', year: '2024', color: 'var(--cream)', ink: 'var(--ink)',
     role: 'Open Source Learning Resource', stack: ['Next.js', 'Rust', 'MDX'],
     body: 'A focused learning resource for the Bevy game engine, built to make a difficult tool easier to understand and use.',
+    proof: 'Technical documentation shaped as a clearer learning path for a difficult engine.',
     link: 'https://bevy-guide.vercel.app', action: 'VISIT SITE',
   },
 ] as const;
@@ -42,15 +63,17 @@ export default function App() {
   const root = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState<(typeof projects)[number] | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [mentorIndex, setMentorIndex] = useState(1);
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const lenis = new Lenis({ duration: reduced ? 0 : 1.45, smoothWheel: !reduced, wheelMultiplier: reduced ? 1 : 0.68, touchMultiplier: reduced ? 1 : 0.82 });
+    const lenis = new Lenis({ duration: reduced ? 0 : 1.8, smoothWheel: !reduced, wheelMultiplier: reduced ? 1 : 0.42, touchMultiplier: reduced ? 1 : 0.64 });
     const tick = (time: number) => lenis.raf(time * 1000);
     gsap.ticker.add(tick);
     gsap.ticker.lagSmoothing(0);
 
+    let removeMentorDrag = () => {};
     const ctx = gsap.context(() => {
       gsap.from('.hero-line > span', { yPercent: 110, duration: 1.15, stagger: 0.1, ease: 'power4.out', delay: 0.2 });
       gsap.from('.hero-role, .hero-cta', { opacity: 0, y: 20, duration: 0.7, stagger: 0.12, delay: 0.9 });
@@ -108,12 +131,66 @@ export default function App() {
         }
       }
 
-      const imageTrack = document.querySelector<HTMLElement>('.image-track');
       const mentoring = document.querySelector<HTMLElement>('.mentoring');
-      if (imageTrack && mentoring && !reduced) {
-        const distance = () => Math.max(0, imageTrack.scrollWidth - window.innerWidth);
-        gsap.to(imageTrack, { x: () => -distance(), ease: 'none', scrollTrigger: { trigger: mentoring, start: 'top top', end: () => `+=${distance()}`, pin: true, scrub: 0.85, invalidateOnRefresh: true } });
+      const mentorStage = document.querySelector<HTMLElement>('.mentor-stage');
+      if (mentoring && mentorStage && !reduced) {
+        const mentorTimeline = gsap.timeline({
+          scrollTrigger: {
+            trigger: mentoring,
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: 0.9,
+            onUpdate: (self) => setMentorIndex(Math.min(6, Math.floor(self.progress * 6) + 1)),
+          },
+        });
+        mentorTimeline
+          .to('.mentor-progress i', { scaleX: 1, ease: 'none' }, 0)
+          .fromTo('.mentor-primary', { scale: 0.82, yPercent: 18, rotate: -2 }, { scale: 1, yPercent: 0, rotate: 0, ease: 'power2.out' }, 0)
+          .fromTo('.mentor-card--one', { xPercent: -150, yPercent: 18, scale: 0.68, rotate: -9 }, { xPercent: 0, yPercent: 0, scale: 1, rotate: -3, ease: 'power2.out' }, 0.16)
+          .fromTo('.mentor-card--two', { xPercent: 145, yPercent: 35, scale: 0.62, rotate: 8 }, { xPercent: 0, yPercent: 0, scale: 1, rotate: 2, ease: 'power2.out' }, 0.3)
+          .fromTo('.mentor-card--three', { xPercent: -120, yPercent: 70, scale: 0.58, rotate: -7 }, { xPercent: 0, yPercent: 0, scale: 1, rotate: 2, ease: 'power2.out' }, 0.43)
+          .fromTo('.mentor-card--four', { xPercent: 125, yPercent: 80, scale: 0.54, rotate: 9 }, { xPercent: 0, yPercent: 0, scale: 1, rotate: -2, ease: 'power2.out' }, 0.55)
+          .to('.mentor-primary', { scale: 0.9, xPercent: -18, yPercent: -9, ease: 'power2.inOut' }, 0.48)
+          .to('.mentoring-copy, .mentor-card:not(.mentor-final), .mentor-progress', { opacity: 0, y: -24, ease: 'power2.in' }, 0.72)
+          .fromTo('.mentor-final', { clipPath: 'inset(100% 0 0 0)', scale: 1.12 }, { clipPath: 'inset(0% 0 0 0)', scale: 1, ease: 'power3.inOut' }, 0.7);
+
+        let dragging = false;
+        let startX = 0;
+        let startScroll = 0;
+        const onPointerDown = (event: PointerEvent) => {
+          dragging = true;
+          startX = event.clientX;
+          startScroll = window.scrollY;
+          mentorStage.classList.add('is-dragging');
+          mentorStage.setPointerCapture(event.pointerId);
+        };
+        const onPointerMove = (event: PointerEvent) => {
+          if (!dragging) return;
+          lenis.scrollTo(startScroll + (startX - event.clientX) * 4.2, { immediate: true });
+        };
+        const stopDragging = () => {
+          dragging = false;
+          mentorStage.classList.remove('is-dragging');
+        };
+        mentorStage.addEventListener('pointerdown', onPointerDown);
+        mentorStage.addEventListener('pointermove', onPointerMove);
+        mentorStage.addEventListener('pointerup', stopDragging);
+        mentorStage.addEventListener('pointercancel', stopDragging);
+        removeMentorDrag = () => {
+          mentorStage.removeEventListener('pointerdown', onPointerDown);
+          mentorStage.removeEventListener('pointermove', onPointerMove);
+          mentorStage.removeEventListener('pointerup', stopDragging);
+          mentorStage.removeEventListener('pointercancel', stopDragging);
+        };
       }
+
+      const contactPath = document.querySelector<SVGPathElement>('.contact-signal-path');
+      if (contactPath) {
+        const length = contactPath.getTotalLength();
+        gsap.set(contactPath, { strokeDasharray: length, strokeDashoffset: reduced ? 0 : length });
+        if (!reduced) gsap.to(contactPath, { strokeDashoffset: 0, ease: 'none', scrollTrigger: { trigger: '.contact', start: 'top 82%', end: 'top 18%', scrub: 0.7 } });
+      }
+      if (!reduced) gsap.from('.contact-orbit', { scale: 0.35, rotate: -80, opacity: 0, ease: 'back.out(1.4)', scrollTrigger: { trigger: '.contact', start: 'top 54%', end: 'top 12%', scrub: 0.7 } });
 
       gsap.utils.toArray<HTMLElement>('[data-reveal]').forEach((element) => {
         gsap.from(element, { y: 50, opacity: 0, duration: 0.9, ease: 'power3.out', scrollTrigger: { trigger: element, start: 'top 87%' } });
@@ -123,8 +200,17 @@ export default function App() {
 
     const timer = window.setTimeout(() => setLoaded(true), 850);
     const refresh = window.setTimeout(() => ScrollTrigger.refresh(), 1000);
-    return () => { clearTimeout(timer); clearTimeout(refresh); ctx.revert(); gsap.ticker.remove(tick); lenis.destroy(); };
+    return () => { clearTimeout(timer); clearTimeout(refresh); removeMentorDrag(); ctx.revert(); gsap.ticker.remove(tick); lenis.destroy(); };
   }, []);
+
+  useEffect(() => {
+    if (!active) return;
+    const close = (event: KeyboardEvent) => { if (event.key === 'Escape') setActive(null); };
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', close);
+    return () => { document.body.style.overflow = previousOverflow; window.removeEventListener('keydown', close); };
+  }, [active]);
 
   const introWords = 'I’m a full stack software engineer building products, systems, and developer tools.'.split(' ');
 
@@ -177,7 +263,10 @@ export default function App() {
             {projects.map((project) => (
               <article className="project work-panel" key={project.id} style={{ '--project-bg': project.color, '--project-ink': project.ink } as CSSProperties}>
                 <div className="project-head"><span>{project.type}</span><span>{project.year}</span></div>
-                <div className="project-body"><h3>{project.title}</h3><p>{project.body}</p><div className="project-stack">{project.stack.map((item) => <span key={item}>{item}</span>)}</div></div>
+                <span className="project-watermark" aria-hidden="true">{project.id}</span>
+                <div className="project-layout">
+                  <div className="project-body"><h3>{project.title}</h3><p>{project.body}</p><div className="project-stack">{project.stack.map((item) => <span key={item}>{item}</span>)}</div></div>
+                </div>
                 <button onClick={() => setActive(project)}>VIEW PROJECT <ArrowUpRight /></button>
               </article>
             ))}
@@ -193,25 +282,30 @@ export default function App() {
         </section>
 
         <section className="mentoring">
-          <div className="mentoring-title"><h2>MENTORSHIP.</h2><p>Workshops, hackathons, and technical mentorship for more than 500 students.</p></div>
-          <div className="image-track">
-            <figure><img src="/build-hackathon.jpeg" alt="Noora leading the Build Hackathon" /><figcaption><span>01 / 06</span> BUILD HACKATHON</figcaption></figure>
-            <figure><img src="/aics-workshop.jpeg" alt="Noora presenting an AI security workshop at AICS" /><figcaption><span>02 / 06</span> AICS WORKSHOP</figcaption></figure>
-            <figure><img src="/speaking.jpeg" alt="Noora speaking with a microphone" /><figcaption><span>03 / 06</span> SPEAKING</figcaption></figure>
-            <figure><img src="/mentoring-in-action.jpeg" alt="Developers working together during a mentoring session" /><figcaption><span>04 / 06</span> MENTORING IN ACTION</figcaption></figure>
-            <figure><img src="/startup-mentoring.gif" alt="Noora at the startup mentorship program" /><figcaption><span>05 / 06</span> STARTUP MENTORING</figcaption></figure>
-            <figure><img src="/startup-team.jpeg" alt="Noora with the startup event team" /><figcaption><span>06 / 06</span> STARTUP TEAM</figcaption></figure>
+          <div className="mentoring-sticky">
+            <div className="mentoring-copy"><h2>MENTORSHIP.</h2><p>Workshops, hackathons, and technical mentorship for more than 500 students.</p></div>
+            <div className="mentor-stage" aria-label="Mentorship gallery. Scroll or drag to move through the photographs.">
+              <figure className="mentor-card mentor-primary"><img src="/aics-workshop.jpeg" alt="Noora presenting an AI security workshop at AICS" /><figcaption>AICS WORKSHOP</figcaption></figure>
+              <figure className="mentor-card mentor-card--one"><img src="/build-hackathon.jpeg" alt="Noora leading the Build Hackathon" /><figcaption>BUILD HACKATHON</figcaption></figure>
+              <figure className="mentor-card mentor-card--two"><img src="/speaking.jpeg" alt="Noora speaking with a microphone" /><figcaption>SPEAKING</figcaption></figure>
+              <figure className="mentor-card mentor-card--three"><img src="/mentoring-in-action.jpeg" alt="Developers working together during a mentoring session" /><figcaption>MENTORING IN ACTION</figcaption></figure>
+              <figure className="mentor-card mentor-card--four"><img src="/startup-mentoring.gif" alt="Noora at the startup mentorship program" /><figcaption>STARTUP MENTORING</figcaption></figure>
+              <figure className="mentor-card mentor-final"><img src="/startup-team.jpeg" alt="Noora with the startup event team" /><figcaption>STARTUP TEAM</figcaption></figure>
+            </div>
+            <div className="mentor-progress"><span>{String(mentorIndex).padStart(2, '0')} / 06</span><div><i /></div><span>SCROLL OR DRAG</span></div>
           </div>
         </section>
 
         <section className="contact" id="contact">
+          <svg className="contact-signal" viewBox="0 0 1440 900" preserveAspectRatio="none" aria-hidden="true"><path className="contact-signal-path" d="M 0 90 C 250 90 260 360 540 360 S 850 610 1165 535" /></svg>
           <h2 data-reveal>GET IN<br />TOUCH.</h2>
-          <a href="mailto:nooraqasimwork@gmail.com" className="contact-button">EMAIL ME <ArrowUpRight /></a>
+          <div className="contact-orbit"><span>LET&apos;S BUILD SOMETHING USEFUL</span><a href="mailto:nooraqasimwork@gmail.com" className="contact-button">EMAIL ME <ArrowUpRight /></a></div>
+          <a className="contact-email" href="mailto:nooraqasimwork@gmail.com">NOORAQASIMWORK@GMAIL.COM</a>
           <footer><span>NOORA QASIM © 2026</span><div><a href="https://github.com/NooraWael" target="_blank" rel="noreferrer">GITHUB</a><a href="https://www.linkedin.com/in/nooraqasim" target="_blank" rel="noreferrer">LINKEDIN</a></div></footer>
         </section>
       </main>
 
-      {active && <dialog open className="modal" aria-label={`${active.title} project details`} onClick={(event) => { if (event.target === event.currentTarget) setActive(null); }}><div className="modal-card" style={{ '--project-bg': active.color, '--project-ink': active.ink } as CSSProperties}><button className="modal-close" onClick={() => setActive(null)} aria-label="Close project"><X /></button><h2>{active.title}</h2><p>{active.body}</p><div><span>{active.role}</span><span>{active.stack.join(' · ')}</span></div><a href={active.link} target="_blank" rel="noreferrer">{active.action} <ArrowUpRight /></a></div></dialog>}
+      {active && <dialog open className="modal" aria-modal="true" aria-label={`${active.title} project details`} onClick={(event) => { if (event.target === event.currentTarget) setActive(null); }}><div className={`modal-card ${'media' in active ? 'modal-card--visual' : ''}`} style={{ '--project-bg': active.color, '--project-ink': active.ink } as CSSProperties}><button className="modal-close" onClick={() => setActive(null)} aria-label="Close project"><X /></button><div className="modal-copy"><span>{active.type} / {active.year}</span><h2>{active.title}</h2><p>{active.body}</p><strong>{active.proof}</strong></div>{'media' in active && <div className="modal-gallery"><img src={active.media[0]} alt={active.mediaAlt} /><img src={active.media[1]} alt={`${active.mediaAlt}, detail view`} /></div>}<div className="modal-meta"><span>{active.role}</span><span>{active.stack.join(' · ')}</span></div><div className="modal-actions"><a href={active.link} target="_blank" rel="noreferrer">{active.action} <ArrowUpRight /></a>{'secondaryLink' in active && <a href={active.secondaryLink} target="_blank" rel="noreferrer">{active.secondaryAction} <ArrowUpRight /></a>}</div></div></dialog>}
     </div>
   );
 }
