@@ -17,6 +17,7 @@
     "@react-three/postprocessing": "^2.19.1",
     "framer-motion": "^11.18.1",
     "gsap": "^3.12.7",
+    "lenis": "^1.3.26",
     "leva": "^0.10.1",
     "locomotive-scroll": "^4.1.4",
     "lucide-react": "^0.473.0",
